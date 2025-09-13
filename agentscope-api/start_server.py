@@ -16,6 +16,7 @@ os.environ.update({
     "PORT": "8000",
     "OLLAMA_API_BASE": "http://10.227.135.97:11434",
     "DEFAULT_MODEL_NAME": "gpt-oss:20b",
+    "REDIS_DATA_DIR": "./redis",
 })
 
 # 添加項目路徑

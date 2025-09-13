@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     
     # Redis配置
     REDIS_URL: str = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
+    REDIS_DATA_DIR: str = os.environ.get("REDIS_DATA_DIR", "./redis")
     
     # Celery配置
     CELERY_BROKER_URL: str = os.environ.get("CELERY_BROKER_URL", REDIS_URL)

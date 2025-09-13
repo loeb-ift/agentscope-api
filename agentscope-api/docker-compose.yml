@@ -44,8 +44,10 @@ services:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+    environment:
+      - REDIS_DATA_DIR=${REDIS_DATA_DIR:-./redis}
     volumes:
-      - redis-data:/data
+      - ${REDIS_DATA_DIR:-./redis}:/data
     networks:
       - agentscope-network
     command: ["redis-server", "--appendonly", "yes"]
@@ -111,5 +113,4 @@ networks:
 
 # 定义数据卷
 volumes:
-  redis-data:
   postgres-data:

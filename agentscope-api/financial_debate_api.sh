@@ -315,7 +315,7 @@ result_response=$(curl -s "${base_url}/debate/${session_id}/result")
 if [[ $? -eq 0 ]]; then
     # 保存完整结果到文件
     timestamp=$(date +"%Y%m%d_%H%M%S")
-    result_file="debate_result_${timestamp}.json"
+    result_file="result/debate_result_${timestamp}.json"
     echo "$result_response" > "$result_file"
     print_info "辩论结果已保存到: $result_file"
     
@@ -387,7 +387,7 @@ history_response=$(curl -s "${base_url}/debate/${session_id}/history")
 
 if [[ $? -eq 0 ]]; then
     # 保存历史记录到文件
-    history_file="debate_history_${timestamp}.json"
+    history_file="log/debate_history_${timestamp}.json"
     echo "$history_response" > "$history_file"
     print_info "辩论历史记录已保存到: $history_file"
     
