@@ -1,0 +1,115 @@
+version: '3.8'
+
+services:
+  # API服务容器
+  agentscope-api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - PROJECT_NAME=AgentScope Multi-Agent Debate API
+      - PROJECT_VERSION=1.0.0
+      - PROJECT_DESCRIPTION=为n8n工作流提供多Agent辩论功能
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DEBUG=${DEBUG:-True}
+      - HOST=0.0.0.0
+      - PORT=8000
+      - WORKERS=${WORKERS:-1}
+      - API_PREFIX=/api
+      - API_URL=http://localhost:8000
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - BACKEND_CORS_ORIGINS=["http://localhost", "http://localhost:8080", "http://localhost:3000"]
+      - DEFAULT_DEBATE_ROUNDS=3
+      - MAX_DEBATE_ROUNDS=10
+      - DEBATE_STEP_DELAY=2
+      - TIMEZONE=Asia/Shanghai
+      - CELERY_RESULT_EXPIRES=3600
+      - CELERY_TASK_SOFT_TIME_LIMIT=300
+      - CELERY_TASK_TIME_LIMIT=600
+      - CELERY_WORKER_MAX_TASKS_PER_CHILD=10
+      - CELERY_WORKER_PREFETCH_MULTIPLIER=1
+      - DEBATE_EXPIRY_DAYS=30
+      - WEBHOOK_TIMEOUT=10
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - agentscope-network
+    volumes:
+      - .:/app
+
+  # Redis容器（用于缓存和Celery消息队列）
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - agentscope-network
+    command: ["redis-server", "--appendonly", "yes"]
+
+  # PostgreSQL容器（用于数据持久化）
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-agentscope}
+      - POSTGRES_USER=${POSTGRES_USER:-admin}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - agentscope-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Celery工作器容器
+  celery-worker:
+    build: .
+    command: celery -A app.celery worker --loglevel=info --queue=debate_queue,conclusion_queue,notification_queue
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - DEBUG=${DEBUG:-True}
+      - TIMEZONE=Asia/Shanghai
+    depends_on:
+      - redis
+      - postgres
+      - agentscope-api
+    networks:
+      - agentscope-network
+    volumes:
+      - .:/app
+
+  # Celery Beat容器（用于定时任务）
+  celery-beat:
+    build: .
+    command: celery -A app.celery beat --loglevel=info
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - DEBUG=${DEBUG:-True}
+      - TIMEZONE=Asia/Shanghai
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - agentscope-network
+    volumes:
+      - .:/app
+
+# 定义网络
+networks:
+  agentscope-network:
+    driver: bridge
+
+# 定义数据卷
+volumes:
+  redis-data:
+  postgres-data:
