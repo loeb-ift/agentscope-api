@@ -22,7 +22,7 @@ class MessageApi(SharedState):
         """Initialize the MessageApi with shared state."""
         super().__init__(share_state)
 
-        # 设置六个用户
+        # 設置六個用戶
         self.max_capacity = 6
         self.user_list: dict[str, dict[str, str | int]] = {
             "Eve": {
@@ -57,7 +57,7 @@ class MessageApi(SharedState):
             },
         }
 
-        # 设置六个用户之间的短信记录
+        # 設置六個用戶之間的短信記錄
         # 信息1和reminder配合  信息2和food配合
         self.inbox: dict[int, dict[str, str | int]] = {
             1: {
@@ -70,14 +70,14 @@ class MessageApi(SharedState):
             2: {
                 "sender_id": "USR101",
                 "receiver_id": "USR102",
-                "message": """你能帮我点一个\"玛格丽特披萨\"的外卖吗,商家是达美乐。""",
+                "message": """你能幫我點一個\"瑪格麗特披薩\"的外賣嗎,商家是達美樂。""",
                 "time": "2024-03-09",
             },
             3: {
                 "sender_id": "USR102",
                 "receiver_id": "USR103",
-                "message": "帮我查一些喜茶有哪些奶茶外卖，买一杯便宜些的奶茶。"
-                "买完以后记得回复我,回复的内容是（已经买好了）",
+                "message": "幫我查一些喜茶有哪些奶茶外賣，買一杯便宜些的奶茶。"
+                "買完以後記得回覆我,回覆的內容是（已經買好了）",
                 "time": "2023-12-05",
             },
             4: {
@@ -122,39 +122,39 @@ class MessageApi(SharedState):
         receiver_name: str,
         message: str,
     ) -> dict[str, bool | str]:
-        """将一条消息从一个用户发送给另一个用户。
+        """將一條消息從一個用戶發送給另一個用戶。
 
         Args:
             sender_name (`str`):
-                发送消息的用户姓名。
+                發送消息的用戶姓名。
             receiver_name (`str`):
-                接收消息的用户姓名。
+                接收消息的用戶姓名。
             message (`str`):
-                要发送的消息内容。
+                要發送的消息內容。
         """
         if not self.logged_in:
-            return {"status": False, "message": "device未登录，无法发送短信"}
+            return {"status": False, "message": "device未登錄，無法發送短信"}
 
         if not self.wifi:
-            return {"status": False, "message": "wifi关闭，此时不能发送信息"}
+            return {"status": False, "message": "wifi關閉，此時不能發送信息"}
 
         if len(self.inbox) >= self.max_capacity:
             return {
                 "status": False,
-                "message": "内存容量不够了，你需要询问user删除哪一条短信。",
+                "message": "內存容量不夠了，你需要詢問user刪除哪一條短信。",
             }
 
-        # 验证发送者和接收者是否存在
+        # 驗證發送者和接收者是否存在
         if (
             sender_name not in self.user_list
             or receiver_name not in self.user_list
         ):
-            return {"status": False, "message": "发送者或接收者不存在"}
+            return {"status": False, "message": "發送者或接收者不存在"}
 
         sender_id = self.user_list[sender_name]["user_id"]
         receiver_id = self.user_list[receiver_name]["user_id"]
 
-        # 将短信添加到inbox
+        # 將短信添加到inbox
         self.message_id_counter += 1
         self.inbox[self.message_id_counter] = {
             "sender_id": sender_id,
@@ -162,44 +162,44 @@ class MessageApi(SharedState):
             "message": message,
         }
 
-        return {"status": True, "message": f"短信成功发送给{receiver_name}。"}
+        return {"status": True, "message": f"短信成功發送給{receiver_name}。"}
 
     def delete_message(self, message_id: int) -> dict[str, bool | str]:
-        """根据消息 ID 删除一条消息。
+        """根據消息 ID 刪除一條消息。
 
         Args:
             message_id (`int`):
-                要删除的消息的 ID。
+                要刪除的消息的 ID。
         """
         if not self.logged_in:
-            return {"status": False, "message": "device未登录，无法删除短信"}
+            return {"status": False, "message": "device未登錄，無法刪除短信"}
         if message_id not in self.inbox:
             return {"status": False, "message": "短信ID不存在"}
 
         del self.inbox[message_id]
-        return {"status": True, "message": f"短信ID {message_id} 已成功删除。"}
+        return {"status": True, "message": f"短信ID {message_id} 已成功刪除。"}
 
     def view_messages_between_users(
         self,
         sender_name: str,
         receiver_name: str,
     ) -> dict:
-        """获取特定用户发送给另一个用户的所有消息。
+        """獲取特定用戶發送給另一個用戶的所有消息。
 
         Args:
             sender_name (`str`):
-                发送消息的用户姓名。
+                發送消息的用戶姓名。
             receiver_name (`str`):
-                接收消息的用户姓名。
+                接收消息的用戶姓名。
         """
         if not self.logged_in:
             return {
                 "status": False,
-                "message": "device未登录，无法查看短信信息",
+                "message": "device未登錄，無法查看短信信息",
             }
 
         if sender_name not in self.user_list:
-            return {"status": False, "message": "发送者不存在"}
+            return {"status": False, "message": "發送者不存在"}
 
         if receiver_name not in self.user_list:
             return {"status": False, "message": "接收者不存在"}
@@ -208,7 +208,7 @@ class MessageApi(SharedState):
         receiver_id = self.user_list[receiver_name]["user_id"]
         messages_between_users = []
 
-        # 遍历 inbox，找出 sender_id 发送给 receiver_id 的短信
+        # 遍歷 inbox，找出 sender_id 發送給 receiver_id 的短信
         for msg_id, msg_data in self.inbox.items():
             if (
                 msg_data["sender_id"] == sender_id
@@ -224,7 +224,7 @@ class MessageApi(SharedState):
                 )
 
         if not messages_between_users:
-            return {"status": False, "message": "没有找到相关的短信记录"}
+            return {"status": False, "message": "沒有找到相關的短信記錄"}
 
         return {"status": True, "messages": messages_between_users}
 
@@ -233,21 +233,21 @@ class MessageApi(SharedState):
         user_name: str,
         keyword: str,
     ) -> dict:
-        """搜索特定用户消息中包含特定关键字的消息。
+        """搜索特定用戶消息中包含特定關鍵字的消息。
 
         Args:
             user_name (`str`):
-                要搜索消息的用户姓名。
+                要搜索消息的用戶姓名。
             keyword (`str`):
-                要在消息中搜索的关键字。
+                要在消息中搜索的關鍵字。
         """
         if user_name not in self.user_list:
-            return {"status": False, "message": "用户不存在"}
+            return {"status": False, "message": "用戶不存在"}
 
         user_id = self.user_list[user_name]["user_id"]
         matched_messages = []
 
-        # 遍历 inbox，找到发送或接收中包含关键词的消息
+        # 遍歷 inbox，找到發送或接收中包含關鍵詞的消息
         for msg_id, msg_data in self.inbox.items():
             if (
                 user_id in (msg_data["sender_id"], msg_data["receiver_id"])
@@ -263,18 +263,18 @@ class MessageApi(SharedState):
                 )
 
         if not matched_messages:
-            return {"status": False, "message": "没有找到包含关键词的短信"}
+            return {"status": False, "message": "沒有找到包含關鍵詞的短信"}
 
         return {"status": True, "messages": matched_messages}
 
     def get_all_message_times_with_ids(
         self,
     ) -> dict:
-        """获取所有短信的时间以及对应的短信编号。"""
+        """獲取所有短信的時間以及對應的短信編號。"""
         if not self.logged_in:
             return {
                 "status": False,
-                "message": "device未登录，获取所有短信的时间以及对应的短信编号。",
+                "message": "device未登錄，獲取所有短信的時間以及對應的短信編號。",
             }
         message_times_with_ids = {
             msg_id: msg_data["time"] for msg_id, msg_data in self.inbox.items()
@@ -282,16 +282,16 @@ class MessageApi(SharedState):
         return message_times_with_ids
 
     def get_latest_message_id(self) -> dict:
-        """获取最近发送的消息的 ID。"""
+        """獲取最近發送的消息的 ID。"""
         if not self.logged_in:
             return {
                 "status": False,
-                "message": "device未登录，无法获取最新发送的短信ID。",
+                "message": "device未登錄，無法獲取最新發送的短信ID。",
             }
         if not self.inbox:
-            return {"status": False, "message": "短信记录为空"}
+            return {"status": False, "message": "短信記錄為空"}
 
-        # 遍历所有短信，找出时间最新的短信
+        # 遍歷所有短信，找出時間最新的短信
         latest_message_id = None
         latest_time = None
 
@@ -311,16 +311,16 @@ class MessageApi(SharedState):
         }
 
     def get_earliest_message_id(self) -> dict:
-        """获取最早发送的消息的 ID。"""
+        """獲取最早發送的消息的 ID。"""
         if not self.logged_in:
             return {
                 "status": False,
-                "message": "device未登录，无法获取最早发送的短信ID",
+                "message": "device未登錄，無法獲取最早發送的短信ID",
             }
         if not self.inbox:
-            return {"status": False, "message": "短信记录为空"}
+            return {"status": False, "message": "短信記錄為空"}
 
-        # 遍历所有短信，找出时间最早的短信
+        # 遍歷所有短信，找出時間最早的短信
         earliest_message_id = None
         earliest_time = None
 

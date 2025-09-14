@@ -24,11 +24,11 @@ class DebateService:
         self.agent_service = AgentService(db)
     
     def start_debate(self, request: DebateStartRequest, background_tasks: BackgroundTasks) -> Debate:
-        """启动一场新的辩论"""
-        # 1. 验证Agent IDs
+        """啟動一場新的辯論"""
+        # 1. 驗證Agent IDs
         agents = self.agent_service.get_agent_by_ids(request.agent_ids)
         
-        # 2. 创建辩论记录
+        # 2. 創建辯論記錄
         debate = Debate(
             topic=request.topic,
             status=DebateStatus.CREATED.value,

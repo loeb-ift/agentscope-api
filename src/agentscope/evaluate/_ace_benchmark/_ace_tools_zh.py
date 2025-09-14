@@ -57,14 +57,14 @@ class ACEPhone:
         self._travel = TravelApi()
 
     def turn_on_wifi(self) -> dict[str, bool | str]:
-        """开启WiFi连接。"""
+        """開啟WiFi連接。"""
         self._state["wifi"] = True
-        return {"status": True, "message": "wifi已经打开"}
+        return {"status": True, "message": "wifi已經打開"}
 
     def login_device(self) -> dict[str, bool | str]:
-        """登录设备。"""
+        """登錄設備。"""
         self._state["logged_in"] = True
-        return {"status": True, "message": "设备已经登录"}
+        return {"status": True, "message": "設備已經登錄"}
 
     def load_initial_config(self, initial_config: dict) -> None:
         """Load the initial config from the application configuration."""

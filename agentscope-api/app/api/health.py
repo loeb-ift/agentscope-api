@@ -8,13 +8,13 @@ from typing import Dict, Any
 
 router = APIRouter()
 
-@router.get("/health", summary="检查服务健康状态")
+@router.get("/health", summary="檢查服務健康狀態")
 def health_check(db: Session = Depends(get_db)):
     """
-    检查API服务的健康状态，包括数据库连接
+    檢查API服務的健康狀態，包括數據庫連接
     """
     try:
-        # 检查数据库连接
+        # 檢查數據庫連接
         db.execute(text("SELECT 1"))
         db_status = "healthy"
     except Exception as e:
@@ -41,10 +41,10 @@ def health_check(db: Session = Depends(get_db)):
         "message": "AgentScope API is running"
     }
 
-@router.get("/version", summary="获取API版本信息")
+@router.get("/version", summary="獲取API版本資訊")
 def get_version():
     """
-    获取API的版本信息
+    獲取API的版本資訊
     """
     return {
         "version": settings.VERSION,

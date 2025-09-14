@@ -16,20 +16,20 @@ from app.core.config import settings
 
 router = APIRouter()
 
-@router.post("/create", response_model=AgentCreateResponse, summary="创建新Agent")
+@router.post("/create", response_model=AgentCreateResponse, summary="創建新Agent")
 def create_agent(
     request: AgentCreateRequest,
     db: Session = Depends(get_db)
 ):
     """
-    创建一个新的Agent实例
+    創建一個新的Agent實例
     
-    - **name**: Agent名称
-    - **role**: Agent角色类型
-    - **system_prompt**: 系统提示词
+    - **name**: Agent名稱
+    - **role**: Agent角色類型
+    - **system_prompt**: 系統提示詞
     - **llm_config**: 模型配置
-    - **personality_traits**: 个性特征列表
-    - **expertise_areas**: 专业领域列表
+    - **personality_traits**: 個性特徵列表
+    - **expertise_areas**: 專業領域列表
     """
     agent_service = AgentService(db)
     agent = agent_service.create_agent(request)
@@ -41,13 +41,13 @@ def create_agent(
         created_at=agent.created_at
     )
 
-@router.get("/{agent_id}", response_model=AgentResponse, summary="获取Agent详情")
+@router.get("/{agent_id}", response_model=AgentResponse, summary="獲取Agent詳情")
 def get_agent(
     agent_id: str,
     db: Session = Depends(get_db)
 ):
     """
-    根据ID获取Agent的详细信息
+    根據ID獲取Agent的詳細信息
     
     - **agent_id**: Agent的唯一标识
     """

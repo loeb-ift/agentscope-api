@@ -16,26 +16,26 @@ from app.core.config import settings
 
 router = APIRouter()
 
-@router.post("/start", response_model=DebateStartResponse, summary="启动多Agent辩论")
+@router.post("/start", response_model=DebateStartResponse, summary="啟動多Agent辯論")
 def start_debate(
     request: DebateStartRequest,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
     """
-    启动一场多Agent辩论
+    啟動一場多Agent辯論
     
-    - **topic**: 辩论主题
-    - **agent_ids**: 参与辩论的Agent ID列表
-    - **rounds**: 辩论轮数（可选，默认3轮）
-    - **max_duration_minutes**: 最大持续时间（分钟）（可选）
-    - **conclusion_requirements**: 结论生成要求（可选）
-    - **webhook_url**: 辩论完成后的回调URL（可选）
+    - **topic**: 辯論主題
+    - **agent_ids**: 參與辯論的Agent ID列表
+    - **rounds**: 辯論輪數（可選，默認3輪）
+    - **max_duration_minutes**: 最大持續時間（分鐘）（可選）
+    - **conclusion_requirements**: 結論生成要求（可選）
+    - **webhook_url**: 辯論完成後的回調URL（可選）
     """
     debate_service = DebateService(db)
     agent_service = AgentService(db)
     
-    # 验证所有Agent是否存在且活跃
+    # 驗證所有Agent是否存在且活躍
     for agent_id in request.agent_ids:
         agent = agent_service.get_agent(agent_id)
         if not agent or not agent.is_active:

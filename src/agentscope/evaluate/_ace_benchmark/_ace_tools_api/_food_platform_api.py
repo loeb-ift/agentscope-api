@@ -126,45 +126,45 @@ class FoodPlatformApi(SharedState):
         username: str,
         password: str,
     ) -> dict[str, bool | str]:
-        """使用用户名和密码登录外卖平台。
+        """使用用户名和密码登錄外賣平台。
 
         Args:
             username (`str`):
-                用户的用户名。
+                用戶的用戶名。
             password (`str`):
-                用户的密码。
+                用戶的密碼。
         """
         if not self.wifi:
-            return {"status": False, "message": "wifi未打开，无法登录"}
+            return {"status": False, "message": "wifi未開啟，無法登錄"}
         if username not in self.users:
-            return {"status": False, "message": "用户不存在"}
+            return {"status": False, "message": "用戶不存在"}
         if self.users[username]["password"] != password:
-            return {"status": False, "message": "密码错误"}
+            return {"status": False, "message": "密碼錯誤"}
 
-        # 检查是否已经有用户登录
+        # 檢查是否已經有用戶登錄
         if username in self.logged_in_users:
-            return {"status": False, "message": f"{username} 已经登录"}
+            return {"status": False, "message": f"{username} 已經登錄"}
 
-        # 记录已登录用户
+        # 記錄已登錄用戶
         self.logged_in_users.append(username)
-        return {"status": True, "message": f"用户{username}登陆成功！"}
+        return {"status": True, "message": f"用戶{username}登陸成功！"}
 
     def view_logged_in_users(self) -> dict:
-        """查看当前所有登录的用户。"""
+        """查看當前所有登錄的用戶。"""
         if not self.logged_in_users:
             return {
                 "status": False,
-                "message": "当前没有登录food platform",
+                "message": "當前沒有登錄food platform",
             }
 
         return {"status": True, "logged_in_users": self.logged_in_users}
 
     def check_balance(self, user_name: str) -> float:
-        """查询指定用户的余额。
+        """查詢指定用戶的餘額。
 
         Args:
             user_name (`str`):
-                用户的用户名。
+                用戶的用戶名。
         """
         if user_name in self.users:
             return self.users[user_name]["balance"]
@@ -177,20 +177,20 @@ class FoodPlatformApi(SharedState):
         merchant_name: str,
         items: list[dict[str, str | int]],
     ) -> dict[str, bool | str]:
-        """订外卖
+        """訂外賣
 
         Args:
             username (`str`):
-                下订单的用户姓名。
+                下訂單的用戶姓名。
             merchant_name (`str`):
-                下订单的商家名称。
+                下訂單的商家名稱。
             items (`list[dict[str, str | int]]`):
-                订单中商品的列表，每个商品包含名称和数量。
+                訂單中商品的列表，每個商品包含名稱和數量。
         """
         if username not in self.logged_in_users:
             return {
                 "status": False,
-                "message": f"用户 {username} 未登录food platform",
+                "message": f"用戶 {username} 未登錄food platform",
             }
 
         if merchant_name not in self.merchant_list:
@@ -198,7 +198,7 @@ class FoodPlatformApi(SharedState):
 
         total_price = 0.0
         order_items = []
-
+        
         for item in items:
             product_name = item.get("product")
             quantity = item.get("quantity", 1)
@@ -206,10 +206,10 @@ class FoodPlatformApi(SharedState):
             if not isinstance(quantity, int) or quantity <= 0:
                 return {
                     "status": False,
-                    "message": f"无效的数量 {quantity} 对于商品 {product_name}",
+                    "message": f"無效的數量 {quantity} 對於商品 {product_name}",
                 }
 
-            # 查找商品价格
+            # 查找商品價格
             product_found = False
             for product in self.merchant_list[merchant_name]["menu"]:
                 if product["product"] == product_name:
@@ -226,15 +226,15 @@ class FoodPlatformApi(SharedState):
             if not product_found:
                 return {
                     "status": False,
-                    "message": f"商品 {product_name} 不存在于 "
-                    f"{merchant_name} 的菜单中",
+                    "message": f"商品 {product_name} 不存在於 "
+                    f"{merchant_name} 的菜單中",
                 }
 
-        # 检查余额是否足够
+        # 檢查餘額是否足夠
         if total_price >= self.users[username]["balance"]:
-            return {"status": False, "message": "余额不足，无法下单"}
+            return {"status": False, "message": "餘額不足，無法下單"}
 
-        # 扣除余额并创建订单
+        # 扣除餘額並創建訂單
         self.users[username]["balance"] -= total_price
         order = {
             "user_name": username,
@@ -245,18 +245,18 @@ class FoodPlatformApi(SharedState):
         self.orders.append(order)
         return {
             "status": True,
-            "message": f"外卖订单成功下单给 {merchant_name}，" f"总金额为 {total_price} 元",
+            "message": f"外賣訂單成功下單給 {merchant_name}，" f"總金額為 {total_price} 元",
         }
 
     def get_products(
         self,
         merchant_name: str,
     ) -> list[dict[str, str | float]] | dict[str, bool | str]:
-        """获取特定商家的商品列表。
+        """獲取特定商家的商品列表。
 
         Args:
             merchant_name (`str`):
-                要获取商品的商家名称。
+                要獲取商品的商家名稱。
         """
         merchant = self.merchant_list.get(merchant_name)
         if merchant:
@@ -271,13 +271,13 @@ class FoodPlatformApi(SharedState):
         self,
         user_name: str,
     ) -> dict[str, bool | str | list[dict[str, str | int | float]]]:
-        """查看用户的所有订单"""
+        """查看用戶的所有訂單"""
         user_orders = [
             order for order in self.orders if order["user_name"] == user_name
         ]
 
         if not user_orders:
-            return {"status": False, "message": "用户没有订单记录"}
+            return {"status": False, "message": "用戶沒有訂單記錄"}
 
         return {"status": True, "orders": user_orders}
 
@@ -285,7 +285,7 @@ class FoodPlatformApi(SharedState):
         self,
         keyword: str,
     ) -> dict[str, bool | str | list[dict[str, str | float]]]:
-        """根据关键字搜索订单。"""
+        """根據關鍵字搜索訂單。"""
         matched_orders = [
             order
             for order in self.orders
@@ -297,6 +297,6 @@ class FoodPlatformApi(SharedState):
         ]
 
         if not matched_orders:
-            return {"status": False, "message": "没有找到匹配的订单"}
+            return {"status": False, "message": "沒有找到匹配的訂單"}
 
         return {"status": True, "orders": matched_orders}

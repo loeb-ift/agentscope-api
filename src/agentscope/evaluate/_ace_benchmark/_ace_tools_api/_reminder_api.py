@@ -43,10 +43,10 @@ class ReminderApi(SharedState):
             3: {
                 "reminder_id": 1003,
                 "title": "To-do list",
-                "description": '首先帮Frank在"盒马生鲜"点外卖，'
-                '需要定两个"生鲜大礼包"，再发短信告诉Frank：'
-                '"购买商品的价格是()元"。要把括号换成实际金额，'
-                "保留一位小数。",
+                "description": '首先幫Frank在"盒馬生鮮"點外賣，'
+                '需要定兩個"生鮮大禮包"，再發短信告訴Frank：'
+                '"購買商品的價格是()元"。要把括號換成實際金額，'
+                "保留一位小數。",
                 "time": "2024-07-16 11:00",
                 "notified": False,
             },
@@ -62,29 +62,29 @@ class ReminderApi(SharedState):
         }
 
     def _check_capacity(self) -> bool:
-        """检查备忘录容量是否已满。"""
+        """檢查備忘錄容量是否已滿。"""
         return len(self.reminder_list) >= self.max_capacity
 
     def view_reminder_by_title(
         self,
         title: str,
     ) -> dict[str, str | bool | dict[str, str | bool | datetime]]:
-        """根据提醒的标题查看特定的提醒。
+        """根據提醒的標題查看特定的提醒。
 
         Args:
-            title (str): 提醒的标题。
+            title (str): 提醒的標題。
 
         Returns:
             dict[str, str | bool | dict[str, str | bool | datetime]]:
-                包含查找状态和提醒详情的字典。
+                包含查找狀態和提醒詳情的字典。
         """
         if not self.logged_in:
-            return {"status": False, "message": "device未登录，无法查看提醒"}
+            return {"status": False, "message": "device未登錄，無法查看提醒"}
         for reminder in self.reminder_list.values():
             if reminder["title"] == title:
                 return {"status": True, "reminder": reminder}
 
-        return {"status": False, "message": f"没有找到标题为 '{title}' 的提醒"}
+        return {"status": False, "message": f"沒有找到標題為 '{title}' 的提醒"}
 
     def add_reminder(
         self,
@@ -92,23 +92,23 @@ class ReminderApi(SharedState):
         description: str,
         time: datetime,
     ) -> dict[str, bool | str]:
-        """添加一个新的提醒。
+        """添加一個新的提醒。
 
         Args:
-            title (str): 提醒标题。
+            title (str): 提醒標題。
             description (str): 提醒描述。
-            time (datetime): 提醒时间, 一定遵循格式"YYYY-MM-DD HH:MM"。
+            time (datetime): 提醒時間, 一定遵循格式"YYYY-MM-DD HH:MM"。
 
         Returns:
-            dict[str, bool | str]: 包含添加状态和结果的字典。
+            dict[str, bool | str]: 包含添加狀態和結果的字典。
         """
         if not self.logged_in:
             return {
                 "status": False,
-                "message": "device未登录，无法添加一个新的提醒",
+                "message": "device未登錄，無法添加一個新的提醒",
             }
         if self._check_capacity():
-            return {"status": False, "message": "提醒容量已满，无法添加新的提醒"}
+            return {"status": False, "message": "提醒容量已滿，無法添加新的提醒"}
 
         self.reminder_id_counter += 1
         reminder_id = self.reminder_id_counter
@@ -122,21 +122,21 @@ class ReminderApi(SharedState):
         return {"status": True, "message": f"提醒 '{title}' 已成功添加"}
 
     def delete_reminder(self, reminder_id: int) -> dict[str, bool | str]:
-        """删除指定的提醒。
+        """刪除指定的提醒。
 
         Args:
-            reminder_id (int): 要删除的提醒ID。
+            reminder_id (int): 要刪除的提醒ID。
 
         Returns:
-            dict[str, bool | str]: 包含删除状态和结果的字典。
+            dict[str, bool | str]: 包含刪除狀態和結果的字典。
         """
         if not self.logged_in:
-            return {"status": False, "message": "device未登录，无法删除指定的提醒"}
+            return {"status": False, "message": "device未登錄，無法刪除指定的提醒"}
         if reminder_id not in self.reminder_list:
             return {"status": False, "message": "提醒ID不存在"}
 
         del self.reminder_list[reminder_id]
-        return {"status": True, "message": f"提醒ID {reminder_id} 已成功删除"}
+        return {"status": True, "message": f"提醒ID {reminder_id} 已成功刪除"}
 
     def view_all_reminders(
         self,
@@ -148,7 +148,7 @@ class ReminderApi(SharedState):
                 包含所有提醒的字典列表。
         """
         if not self.reminder_list:
-            return {"status": False, "message": "没有任何提醒"}
+            return {"status": False, "message": "沒有任何提醒"}
 
         reminders = []
         for reminder in self.reminder_list.values():
@@ -166,28 +166,28 @@ class ReminderApi(SharedState):
         self,
         reminder_id: int,
     ) -> dict[str, bool | str]:
-        """标记提醒为已通知。
+        """標記提醒為已通知。
 
         Args:
-            reminder_id (int): 要标记为已通知的提醒ID。
+            reminder_id (int): 要標記為已通知的提醒ID。
 
         Returns:
-            dict[str, bool | str]:: 包含操作结果的字典。
+            dict[str, bool | str]:: 包含操作結果的字典。
         """
         if reminder_id not in self.reminder_list:
             return {"status": False, "message": "提醒ID不存在"}
 
         self.reminder_list[reminder_id]["notified"] = True
-        return {"status": True, "message": f"提醒ID {reminder_id} 已标记为已通知"}
+        return {"status": True, "message": f"提醒ID {reminder_id} 已標記為已通知"}
 
     def search_reminders(
         self,
         keyword: str,
     ) -> dict:
-        """根据关键词搜索提醒。
+        """根據關鍵詞搜索提醒。
 
         Args:
-            keyword (str): 搜索关键词。
+            keyword (str): 搜索關鍵詞。
 
         Returns:
             `dict`:
@@ -209,6 +209,6 @@ class ReminderApi(SharedState):
                 )
 
         if not matched_reminders:
-            return {"status": False, "message": "没有找到包含该关键词的提醒"}
+            return {"status": False, "message": "沒有找到包含該關鍵詞的提醒"}
 
         return {"status": True, "reminders": matched_reminders}

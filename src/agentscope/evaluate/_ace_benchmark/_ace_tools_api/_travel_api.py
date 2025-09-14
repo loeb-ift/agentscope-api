@@ -11,10 +11,10 @@ from datetime import datetime, timedelta
 
 
 class TravelApi:
-    """旅行预订系统类。
+    """旅行預訂系統類。
 
-    提供航班查询、用户认证、预订管理等功能的旅行系统。
-    支持直飞和中转航班查询、航班预订、预订修改和取消等功能。
+    提供航班查詢、用戶認證、預訂管理等功能的旅行系統。
+    支持直飛和中轉航班查詢、航班預訂、預訂修改和取消等功能。
     """
 
     tool_functions: list[str] = [
@@ -27,11 +27,11 @@ class TravelApi:
     ]
 
     def __init__(self) -> None:
-        """初始化旅行系统。
+        """初始化旅行系統。
 
-        设置用户档案和航班信息，包含用户信息、航班数据和预订记录。
+        設置用戶檔案和航班信息，包含用戶信息、航班數據和預訂記錄。
         """
-        # 初始化用户信息
+        # 初始化用戶信息
         self.users = {
             "user1": {
                 "user_name": "Eve",
@@ -148,7 +148,7 @@ class TravelApi:
             },
             {
                 "flight_no": "MH1765",
-                "origin": "厦门",
+                "origin": "廈門",
                 "destination": "成都",
                 "depart_time": "2024-07-17 12:30:00",
                 "arrival_time": "2024-07-17 15:00:00",
@@ -160,7 +160,7 @@ class TravelApi:
             {
                 "flight_no": "MH2616",
                 "origin": "成都",
-                "destination": "厦门",
+                "destination": "廈門",
                 "depart_time": "2024-07-18 18:30:00",
                 "arrival_time": "2024-07-18 21:00:00",
                 "status": "available",
@@ -181,14 +181,14 @@ class TravelApi:
             },
         ]
 
-        # 初始化预订列表
+        # 初始化預訂列表
         self.reservations = [
             {
                 "reservation_id": "res_1",
                 "user_id": "user1",
                 "flight_no": "CA1234",
                 "payment_method": "bank",
-                "cabin": "经济舱",
+                "cabin": "經濟艙",
                 "baggage": 1,
                 "origin": "北京",
                 "destination": "上海",
@@ -198,7 +198,7 @@ class TravelApi:
                 "user_id": "user1",
                 "flight_no": "MU5678",
                 "payment_method": "bank",
-                "cabin": "商务舱",
+                "cabin": "商務艙",
                 "baggage": 1,
                 "origin": "上海",
                 "destination": "北京",
@@ -208,9 +208,9 @@ class TravelApi:
                 "user_id": "user2",
                 "flight_no": "MH1765",
                 "payment_method": "bank",
-                "cabin": "商务舱",
+                "cabin": "商務艙",
                 "baggage": 1,
-                "origin": "厦门",
+                "origin": "廈門",
                 "destination": "成都",
             },
             {
@@ -218,15 +218,15 @@ class TravelApi:
                 "user_id": "user2",
                 "flight_no": "MU2616",
                 "payment_method": "bank",
-                "cabin": "商务舱",
+                "cabin": "商務艙",
                 "baggage": 1,
                 "origin": "成都",
-                "destination": "厦门",
+                "destination": "廈門",
             },
         ]
 
     def get_state_dict(self) -> dict:
-        """Get the current state dict of the TravelApi."""
+        """獲取當前TravelApi的狀態字典。"""
         return {
             "Travel": {
                 "users": self.users,
@@ -241,24 +241,24 @@ class TravelApi:
         origin: str = None,
         destination: str = None,
     ) -> list[dict] | str:
-        """根据出发地和到达地查询航班的基本信息。
+        """根據出發地和目的地查詢航班的基本信息。
 
         Args:
-            origin (str, optional): 出发地城市名称。默认为None。
-            destination (str, optional): 目的地城市名称。默认为None。
+            origin (str, optional): 出發地城市名稱。默認為None。
+            destination (str, optional): 目的地城市名稱。默認為None。
 
         Returns:
-            list[dict] | str: 符合条件的航班列表或无航班的提示信息。
+            list[dict] | str: 符合條件的航班列表或無航班的提示信息。
         """
         flights = self.flights
 
-        # 过滤出发地
+        # 過濾出發地
         if origin:
             flights = [
                 flight for flight in flights if flight["origin"] == origin
             ]
 
-        # 过滤到达地
+        # 過濾目的地
         if destination:
             flights = [
                 flight
@@ -266,8 +266,8 @@ class TravelApi:
                 if flight["destination"] == destination
             ]
         if len(flights) == 0:
-            return "没有符合条件的直达航班"
-        # 返回查询结果
+            return "沒有符合條件的直達航班"
+        # 返回查詢結果
         return [
             {
                 "flight_no": flight["flight_no"],
@@ -284,38 +284,38 @@ class TravelApi:
         ]
 
     def get_user_details(self, user_id: str, password: str) -> dict:
-        """根据用户名和密码查询用户信息。
+        """根據用戶名和密碼查詢用戶信息。
 
         Args:
-            user_id (str): 用户ID。
-            password (str): 用户密码。
+            user_id (str): 用戶ID。
+            password (str): 用戶密碼。
 
         Returns:
-            dict: 用户信息字典（不包含密码）或错误信息。
+            dict: 用戶信息字典（不包含密碼）或錯誤信息。
         """
         user = self.users.get(user_id)
         if user and user["password"] == password:
             return {
                 key: value for key, value in user.items() if key != "password"
             }
-        return {"status": "error", "message": "用户名或密码不正确"}
+        return {"status": "error", "message": "用戶名或密碼不正確"}
 
     def get_reservation_details(
         self,
         reservation_id: str = None,
         user_id: str = None,
     ) -> list[dict] | dict:
-        """根据预订ID或用户ID查询预订信息，包括对应航班的基本信息。
+        """根據預訂ID或用戶ID查詢預訂信息，包括對應航班的基本信息。
 
         Args:
-            reservation_id (str, optional): 预订ID。默认为None。
-            user_id (str, optional): 用户ID。默认为None。
+            reservation_id (str, optional): 預訂ID。默認為None。
+            user_id (str, optional): 用戶ID。默認為None。
 
         Returns:
             `list[dict] | dict`:
-                详细预订信息列表或错误信息字典。
+                詳細預訂信息列表或錯誤信息字典。
         """
-        # 根据预订ID或用户ID筛选预订信息
+        # 根據預訂ID或用戶ID篩選預訂信息
         if reservation_id:
             reservations = [
                 reservation
@@ -329,9 +329,9 @@ class TravelApi:
                 if reservation["user_id"] == user_id
             ]
         else:
-            return {"status": "error", "message": "请提供有效的预订ID或用户ID"}
+            return {"status": "error", "message": "請提供有效的預訂ID或用戶ID"}
 
-        # 对每个预订，附加航班信息
+        # 對每個預訂，附加航班信息
         detailed_reservations = []
         for reservation in reservations:
             flight_info = next(
@@ -348,39 +348,39 @@ class TravelApi:
         return detailed_reservations
 
     def authenticate_user(self, user_id: str, password: str) -> dict:
-        """验证用户身份。
+        """驗證用戶身份。
 
         Args:
-            user_id (str): 用户ID。
-            password (str): 用户密码。
+            user_id (str): 用戶ID。
+            password (str): 用戶密碼。
 
         Returns:
             `dict`:
-                用户信息字典或错误信息字典。
+                用戶信息字典或錯誤信息字典。
         """
         user = self.users.get(user_id)
         if user and user["password"] == password:
             return user
-        return {"status": "error", "message": "用户名或密码不正确"}
+        return {"status": "error", "message": "用戶名或密碼不正確"}
 
     def get_baggage_allowance(
         self,
         membership_level: str,
         cabin_class: str,
     ) -> int:
-        """获取用户基于会员等级和舱位的免费托运行李限额。
+        """獲取用戶基於會員等級和艙位的免費托運行李限額。
 
         Args:
-            membership_level (str): 会员等级 ("regular", "silver", "gold")。
-            cabin_class (str): 舱位 ("基础经济舱", "经济舱", "商务舱")。
+            membership_level (str): 會員等級 ("regular", "silver", "gold")。
+            cabin_class (str): 艙位 ("基礎經濟艙", "經濟艙", "商務艙")。
 
         Returns:
-            int: 免费托运行李数量。
+            int: 免費托運行李數量。
         """
         allowance = {
-            "regular": {"经济舱": 1, "商务舱": 2},
-            "silver": {"经济舱": 2, "商务舱": 3},
-            "gold": {"经济舱": 3, "商务舱": 3},
+            "regular": {"經濟艙": 1, "商務艙": 2},
+            "silver": {"經濟艙": 2, "商務艙": 3},
+            "gold": {"經濟艙": 3, "商務艙": 3},
         }
         return allowance.get(membership_level, {}).get(cabin_class, 0)
 
@@ -390,20 +390,20 @@ class TravelApi:
         transfer_city: str,
         destination_city: str,
     ) -> list[dict] | str:
-        """查找从出发城市到目的地城市的中转航班。
+        """查找從出發城市到目的地城市的中轉航班。
 
-        确保第一班航班降落时间早于第二班航班起飞时间。
+        確保第一班航班降落時間早於第二班航班起飛時間。
 
         Args:
-            origin_city (str): 出发城市。
-            transfer_city (str): 中转城市。
-            destination_city (str): 到达城市。
+            origin_city (str): 出發城市。
+            transfer_city (str): 中轉城市。
+            destination_city (str): 到達城市。
 
         Returns:
             list[dict] | str:
-                满足条件的中转航班列表，每个航班包含两段航程的信息，或无航班提示。
+                滿足條件的中轉航班列表，每個航班包含兩段航程的信息，或無航班提示。
         """
-        # 获取从出发城市到中转城市的航班
+        # 獲取從出發城市到中轉城市的航班
         first_leg_flights: list[dict] = [
             flight
             for flight in self.flights
@@ -412,7 +412,7 @@ class TravelApi:
             and flight["status"] == "available"
         ]
 
-        # 获取从中转城市到目的地城市的航班
+        # 獲取從中轉城市到目的地城市的航班
         second_leg_flights = [
             flight
             for flight in self.flights
@@ -421,10 +421,10 @@ class TravelApi:
             and flight["status"] == "available"
         ]
 
-        # 存储符合条件的中转航班
+        # 存儲符合條件的中轉航班
         transfer_flights = []
 
-        # 遍历第一段航班和第二段航班，查找符合时间条件的组合
+        # 遍歷第一段航班和第二段航班，查找符合時間條件的組合
         for first_flight in first_leg_flights:
             first_arrival = datetime.strptime(
                 first_flight["arrival_time"],
@@ -437,7 +437,7 @@ class TravelApi:
                     "%Y-%m-%d %H:%M:%S",
                 )
 
-                # 检查第一班航班降落时间早于第二班航班起飞时间
+                # 檢查第一班航班降落時間早於第二班航班起飛時間
                 if first_arrival < second_departure:
                     transfer_flights.append(
                         {
@@ -446,11 +446,11 @@ class TravelApi:
                         },
                     )
 
-        # 返回符合条件的中转航班列表
+        # 返回符合條件的中轉航班列表
         if transfer_flights:
             return transfer_flights
         else:
-            return "未找到符合条件的中转航班。"
+            return "未找到符合條件的中轉航班。"
 
     def calculate_baggage_fee(
         self,
@@ -458,20 +458,20 @@ class TravelApi:
         cabin_class: str,
         baggage_count: int,
     ) -> float:
-        """计算行李费用。
+        """計算行李費用。
 
         Args:
-            membership_level (str): 会员等级。
-            cabin_class (str): 舱位等级。
-            baggage_count (int): 行李数量。
+            membership_level (str): 會員等級。
+            cabin_class (str): 艙位等級。
+            baggage_count (int): 行李數量。
 
         Returns:
-            float: 额外行李费用。
+            float: 額外行李費用。
         """
         free_baggage = {
-            "regular": {"经济舱": 1, "商务舱": 2},
-            "silver": {"经济舱": 2, "商务舱": 3},
-            "gold": {"经济舱": 3, "商务舱": 3},
+            "regular": {"經濟艙": 1, "商務艙": 2},
+            "silver": {"經濟艙": 2, "商務艙": 3},
+            "gold": {"經濟艙": 3, "商務艙": 3},
         }
         free_limit = free_baggage[membership_level][cabin_class]
         additional_baggage = max(baggage_count - free_limit, 0)
@@ -483,19 +483,19 @@ class TravelApi:
         payment_method: str,
         amount: float,
     ) -> bool:
-        """更新用户的余额。
+        """更新用戶的餘額。
 
         Args:
-            user (dict): 用户信息字典。
+            user (dict): 用戶信息字典。
             payment_method (str): 支付方式（"cash" 或 "bank"）。
-            amount (float): 更新金额（正数表示增加，负数表示减少）。
+            amount (float): 更新金額（正數表示增加，負數表示減少）。
 
         Returns:
-            bool: 如果余额充足且更新成功，返回 True，否则返回 False。
+            bool: 如果餘額充足且更新成功，返回 True，否則返回 False。
         """
         if payment_method == "cash":
             if user["cash_balance"] + amount < 0:
-                return False  # 余额不足
+                return False  # 餘額不足
             user["cash_balance"] += amount
         elif payment_method == "bank":
             if user["bank_balance"] + amount < 0:
@@ -512,24 +512,24 @@ class TravelApi:
         payment_method: str,
         baggage_count: int,
     ) -> str:
-        """预订航班。
+        """預訂航班。
 
         Args:
-            user_id (str): 用户ID。
-            password (str): 用户密码。
-            flight_no (str): 航班号。
-            cabin (str): 舱位等级。
+            user_id (str): 用戶ID。
+            password (str): 用戶密碼。
+            flight_no (str): 航班號。
+            cabin (str): 艙位等級。
             payment_method (str): 支付方式。
-            baggage_count (int): 行李数量。
+            baggage_count (int): 行李數量。
 
         Returns:
-            str: 预订结果信息。
+            str: 預訂結果信息。
         """
         user = self.authenticate_user(user_id, password)
         if not user:
-            return "认证失败，请检查用户ID和密码。"
+            return "認證失敗，請檢查用戶ID和密碼。"
 
-        # 检查航班和座位
+        # 檢查航班和座位
         flight = next(
             (
                 f
@@ -539,15 +539,15 @@ class TravelApi:
             None,
         )
 
-        # 计算航班价格
+        # 計算航班價格
         price: int = (
             flight["economy_price"]
-            if cabin == "经济舱"
+            if cabin == "經濟艙"
             else flight["business_price"]
         )
         total_cost = price
 
-        # 计算行李费用
+        # 計算行李費用
         baggage_fee = self.calculate_baggage_fee(
             user["membership_level"],
             cabin,
@@ -555,21 +555,21 @@ class TravelApi:
         )
         total_cost += baggage_fee
 
-        # 检查支付方式
+        # 檢查支付方式
         if payment_method not in ["cash", "bank"]:
-            return "支付方式无效"
+            return "支付方式無效"
 
-        # 更新预定后的余额
+        # 更新預定後的餘額
         if payment_method == "cash":
             if total_cost > self.users.get(user_id)["cash_balance"]:
-                return "cash余额不足，请考虑换一种支付方式"
+                return "cash餘額不足，請考慮換一種支付方式"
             self.users.get(user_id)["cash_balance"] -= total_cost
         else:
             if total_cost > self.users.get(user_id)["bank_balance"]:
-                return "bank余额不足，请考虑换一种支付方式"
+                return "bank餘額不足，請考慮換一種支付方式"
             self.users.get(user_id)["bank_balance"] -= total_cost
 
-        # 更新航班信息并生成预订
+        # 更新航班信息並生成預訂
         flight["seats_available"] -= 1
         reservation_id = f"res_{len(self.reservations) + 1}"
         reservation = {
@@ -582,7 +582,7 @@ class TravelApi:
         }
         self.reservations.append(reservation)
 
-        return f"预订成功，预订号：{reservation_id}，" f"总费用：{total_cost}元（包含行李费用）。"
+        return f"預訂成功，預訂號：{reservation_id}，" f"總費用：{total_cost}元（包含行李費用）。"
 
     def modify_flight(
         self,
@@ -593,20 +593,20 @@ class TravelApi:
         add_baggage: int = 0,
         new_payment_method: str = None,
     ) -> str:
-        """修改航班预订，包括更改航班、舱位和行李。
+        """修改航班預訂，包括更改航班、艙位和行李。
 
         Args:
-            user_id (str): 用户ID。
-            reservation_id (str): 预订ID。
-            new_flight_no (str, optional): 新的航班号。默认为None。
-            new_cabin (str, optional): 新的舱位。默认为None。
-            add_baggage (int, optional): 新增托运行李的数量。默认为0。
-            new_payment_method (str, optional): 新的付款方式。默认为None。
+            user_id (str): 用戶ID。
+            reservation_id (str): 預訂ID。
+            new_flight_no (str, optional): 新的航班號。默認為None。
+            new_cabin (str, optional): 新的艙位。默認為None。
+            add_baggage (int, optional): 新增托運行李的數量。默認為0。
+            new_payment_method (str, optional): 新的付款方式。默認為None。
 
         Returns:
-            str: 修改结果信息。
+            str: 修改結果信息。
         """
-        # 获取对应的预订
+        # 獲取對應的預訂
         reservation = next(
             (
                 r
@@ -617,9 +617,9 @@ class TravelApi:
             None,
         )
         if not reservation:
-            return "预订未找到或用户ID不匹配。"
+            return "預訂未找到或用戶ID不匹配。"
 
-        # 检查当前预订的航班信息
+        # 檢查當前預訂的航班信息
         current_flight = next(
             (
                 f
@@ -631,7 +631,7 @@ class TravelApi:
         if not current_flight:
             return "航班信息未找到。"
 
-        # 获取原始支付方式或新提供的支付方式
+        # 獲取原始支付方式或新提供的支付方式
         payment_method = (
             new_payment_method
             if new_payment_method
@@ -658,9 +658,9 @@ class TravelApi:
                 reservation["flight_no"] = new_flight_no
                 result_messages.append("航班号已更改。")
             else:
-                return "航班更改失败：新的航班号无效或目的地不匹配。"
+                return "航班更改失敗：新的航班號無效或目的地不匹配。"
 
-        # 更新舱位（若提供）并计算价格差价
+        # 更新艙位（若提供）並計算價格差價
         if new_cabin and new_cabin != reservation.get("cabin"):
             price_difference = self.calculate_price_difference(
                 current_flight,
@@ -669,23 +669,23 @@ class TravelApi:
             )
             reservation["cabin"] = new_cabin
             if price_difference > 0:
-                # 扣除差价
+                # 扣除差價
                 if self.update_balance(
                     user,
                     payment_method,
                     -price_difference,
                 ):
                     result_messages.append(
-                        f"舱位更改成功。已支付差价: {price_difference}。",
+                        f"艙位更改成功。已支付差價: {price_difference}。",
                     )
                 else:
-                    result_messages.append("余额不足，无法支付舱位差价。")
+                    result_messages.append("餘額不足，無法支付艙位差價。")
             elif price_difference < 0:
                 # 退款
                 self.update_balance(user, payment_method, -price_difference)
-                result_messages.append(f"舱位更改成功。已退款差价: {-price_difference}。")
+                result_messages.append(f"艙位更改成功。已退款差價: {-price_difference}。")
 
-        # 增加托运行李，检查免费限额和计算费用
+        # 增加托運行李，檢查免費限額和計算費用
         if add_baggage > 0:
             membership = user["membership_level"]
             max_free_baggage = self.get_baggage_allowance(
@@ -697,18 +697,18 @@ class TravelApi:
             extra_baggage = max(0, total_baggage - max_free_baggage)
             baggage_cost = extra_baggage * 50
             if baggage_cost > 0:
-                # 扣除行李费用
+                # 扣除行李費用
                 if self.update_balance(user, payment_method, -baggage_cost):
                     result_messages.append(
-                        f"行李已增加。需支付额外费用: {baggage_cost}。",
+                        f"行李已增加。需支付額外費用: {baggage_cost}。",
                     )
                 else:
-                    result_messages.append("余额不足，无法支付额外行李费用。")
+                    result_messages.append("餘額不足，無法支付額外行李費用。")
             reservation["baggage"] = total_baggage
 
-        # 返回最终结果
+        # 返回最終結果
         if not result_messages:
-            result_messages.append("修改完成，无需额外费用。")
+            result_messages.append("修改完成，無需額外費用。")
         return " ".join(result_messages)
 
     def cancel_reservation(
@@ -717,23 +717,23 @@ class TravelApi:
         reservation_id: str,
         reason: str,
     ) -> str:
-        """取消预订。
+        """取消預訂。
 
         Args:
-            user_id (str): 用户ID。
-            reservation_id (str): 预订ID。
+            user_id (str): 用戶ID。
+            reservation_id (str): 預訂ID。
             reason (str): 取消原因。
 
         Returns:
-            str: 取消结果信息。
+            str: 取消結果信息。
         """
-        # 设置默认当前时间为 2024年7月14日早上6点
+        # 設置默認當前時間為 2024年7月14日早上6點
         current_time = datetime(2024, 7, 14, 6, 0, 0)
 
-        # 验证用户和预订是否存在
+        # 驗證用戶和預訂是否存在
         user = self.users.get(user_id, None)
         if not user:
-            return "用户ID无效。"
+            return "用戶ID無效。"
 
         reservation = next(
             (
@@ -745,9 +745,9 @@ class TravelApi:
             None,
         )
         if not reservation:
-            return "预订ID无效或与该用户无关。"
+            return "預訂ID無效或與該用戶無關。"
 
-        # 检查航班信息是否存在
+        # 檢查航班信息是否存在
         flight = next(
             (
                 f
@@ -757,57 +757,57 @@ class TravelApi:
             None,
         )
         if not flight:
-            return "航班信息无效。"
+            return "航班信息無效。"
 
-        # 检查航班是否已起飞
+        # 檢查航班是否已起飛
         depart_time = datetime.strptime(
             flight["depart_time"],
             "%Y-%m-%d %H:%M:%S",
         )
         if current_time > depart_time:
-            return "航段已使用，无法取消。"
+            return "航段已使用，無法取消。"
 
-        # 计算距离出发时间
+        # 計算距離出發時間
         time_until_departure = depart_time - current_time
         cancel_fee = 0
         refund_amount = 0
 
-        # 获取航班价格
+        # 獲取航班價格
         flight_price = (
             flight["economy_price"]
-            if reservation["cabin"] == "经济舱"
+            if reservation["cabin"] == "經濟艙"
             else flight["business_price"]
         )
 
-        # 取消政策及退款计算
+        # 取消政策及退款計算
         if reason == "航空公司取消航班":
-            # 航空公司取消航班，全额退款
+            # 航空公司取消航班，全額退款
             refund_amount = flight_price
             self.process_refund(user, refund_amount)
-            return f"航班已取消，您的预订将被免费取消，已退款{refund_amount}元。"
+            return f"航班已取消，您的預訂將被免費取消，已退款{refund_amount}元。"
 
         elif time_until_departure > timedelta(days=1):
-            # 离出发时间超过24小时免费取消
+            # 離出發時間超過24小時免費取消
             refund_amount = flight_price
             self.process_refund(user, refund_amount)
-            return f"距离出发时间超过24小时，免费取消成功，已退款{refund_amount}元。"
+            return f"距離出發時間超過24小時，免費取消成功，已退款{refund_amount}元。"
 
         else:
-            # 若不符合免费取消条件，可根据需求设置取消费
-            cancel_fee = flight_price * 0.1  # 假设取消费为票价的10%
+            # 若不符合免費取消條件，可根據需求設置取消费
+            cancel_fee = flight_price * 0.1  # 假設取消费為票價的10%
             refund_amount = flight_price - cancel_fee
             self.process_refund(user, refund_amount)
-            return f"距离出发时间不足24小时，已扣除取消费{cancel_fee}元，退款{refund_amount}元。"
+            return f"距離出發時間不足24小時，已扣除取消费{cancel_fee}元，退款{refund_amount}元。"
 
     def process_refund(self, user: dict, amount: float) -> str:
-        """将退款金额添加到用户的现金余额中。
+        """將退款金額添加到用戶的現金餘額中。
 
         Args:
-            user (dict): 用户信息字典。
-            amount (float): 退款金额。
+            user (dict): 用戶信息字典。
+            amount (float): 退款金額。
         """
         user["cash_balance"] += amount
-        return f"已成功处理退款，{user['user_name']}的现金余额增加了{amount}元。"
+        return f"已成功處理退款，{user['user_name']}的現金餘額增加了{amount}元。"
 
     def calculate_price_difference(
         self,
@@ -815,19 +815,19 @@ class TravelApi:
         old_cabin: str,
         new_cabin: str,
     ) -> float:
-        """计算舱位价格差异。
+        """計算艙位價格差異。
 
         Args:
             flight (dict): 航班信息字典。
-            old_cabin (str): 原舱位等级。
-            new_cabin (str): 新舱位等级。
+            old_cabin (str): 原艙位等級。
+            new_cabin (str): 新艙位等級。
 
         Returns:
-            float: 价格差异（正数表示需支付差价，负数表示退款）。
+            float: 價格差異（正數表示需支付差價，負數表示退款）。
         """
         cabin_prices = {
-            "经济舱": flight["economy_price"],
-            "商务舱": flight["business_price"],
+            "經濟艙": flight["economy_price"],
+            "商務艙": flight["business_price"],
         }
         old_price = cabin_prices.get(old_cabin, 0)
         new_price = cabin_prices.get(new_cabin, 0)

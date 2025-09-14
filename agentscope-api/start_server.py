@@ -7,15 +7,13 @@ import os
 import sys
 from pathlib import Path
 
-# 設置環境變量
+# 設置環境變量（不覆蓋已有的OLLAMA和MODEL配置，讓它們優先從.env文件中讀取）
 os.environ.update({
     "DATABASE_URL": "sqlite:///./agentscope_production.db",
     "DEBUG": "True",
     "ENVIRONMENT": "development",
     "HOST": "127.0.0.1",
     "PORT": "8000",
-    "OLLAMA_API_BASE": "http://10.227.135.97:11434",
-    "DEFAULT_MODEL_NAME": "gpt-oss:20b",
     "REDIS_DATA_DIR": "./redis",
 })
 
@@ -37,8 +35,10 @@ def start_server():
         Base.metadata.create_all(bind=engine)
         print("✅ 數據庫初始化完成")
         
-        print(f"🔗 Ollama 服務: http://10.227.135.97:11434")
-        print(f"🤖 默認模型: gpt-oss:20b")
+        # 從配置中獲取Ollama信息
+        from app.core.config import settings
+        print(f"🔗 Ollama 服務: {settings.OLLAMA_API_BASE}")
+        print(f"🤖 默認模型: {settings.DEFAULT_MODEL_NAME}")
         print()
         print("🌐 服務器地址:")
         print("  • API: http://127.0.0.1:8000")

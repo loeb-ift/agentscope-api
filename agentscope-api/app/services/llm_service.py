@@ -117,7 +117,7 @@ class LLMService:
                 messages.append({"role": "system", "content": system_prompt})
             
             # 在提示中添加结构化输出的要求
-            structured_prompt = f"{prompt}\n\n请以JSON格式返回结果，确保格式正确。"
+            structured_prompt = f"{prompt}\n\n請以JSON格式返回結果，確保格式正確。"
             messages.append({"role": "user", "content": structured_prompt})
             
             # 生成响应 - 直接调用OllamaChatModel的异步__call__方法

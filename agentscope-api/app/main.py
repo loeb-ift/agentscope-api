@@ -6,20 +6,20 @@ from app.core.config import settings
 from app.api import router as api_router
 from app.core.database import engine, Base
 
-# 初始化数据库模型
+# 初始化數據庫模型
 Base.metadata.create_all(bind=engine)
 
-# 创建FastAPI应用
+# 創建FastAPI應用
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    description="AgentScope Multi-Agent Debate API - 为n8n工作流提供多Agent辩论功能",
+    description="AgentScope Multi-Agent Debate API - 為n8n工作流提供多Agent辯論功能",
     version=settings.VERSION,
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json"
 )
 
-# 配置CORS中间件
+# 配置CORS中間件
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.BACKEND_CORS_ORIGINS,

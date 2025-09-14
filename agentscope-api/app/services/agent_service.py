@@ -14,15 +14,15 @@ class AgentService:
         self.db = db
     
     def create_agent(self, config: AgentCreateRequest) -> Agent:
-        """创建新的Agent实例"""
-        # 验证角色是否在支持的角色列表中
+        """創建新的Agent實例"""
+        # 驗證角色是否在支持的角色列表中
         if config.role not in settings.AGENT_ROLES:
             raise HTTPException(
                 status_code=400,
-                detail=f"不支持的角色类型。支持的角色：{', '.join(settings.AGENT_ROLES.keys())}"
+                detail=f"不支持的角色類型。支持的角色：{', '.join(settings.AGENT_ROLES.keys())}"
             )
         
-        # 创建Agent数据库记录
+        # 創建Agent數據庫記錄
         db_agent = Agent(
             name=config.name,
             role=config.role,
@@ -42,8 +42,8 @@ class AgentService:
         return db_agent
     
     def get_agent(self, agent_id: str) -> Agent:
-        """根据ID获取Agent"""
-        # 将字符串格式的agent_id转换为UUID对象
+        """根據ID獲取Agent"""
+        # 將字符串格式的agent_id轉換為UUID對象
         try:
             agent_uuid = uuid.UUID(agent_id)
         except ValueError:
