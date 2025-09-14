@@ -2,6 +2,62 @@
 
 這是 AgentScope 的 API 服務組件，提供多智能體辯論功能的 RESTful API 接口。本服務允許您通過簡單的 API 調用，創建多個智能體並讓它們圍繞特定主題進行辯論，最終生成結構化的辯論結果和總結。
 
+## 快速部署指南
+
+以下是快速部署和使用 AgentScope API 服務的步驟指南：
+
+### 1. 安裝環境依賴
+
+```bash
+# 進入项目目錄
+cd /Users/loeb/LAB/agentscope/agentscope-api
+
+# 安裝 Python 依賴
+pip install -r requirements.txt
+
+# 確保 Ollama 服務已安裝並運行
+# 下載安裝: https://ollama.com/download
+# 啟動服務: ollama serve
+```
+
+### 2. 配置環境變量
+
+```bash
+# 複製環境變量配置示例
+cp .env.example .env
+
+# 編輯 .env 文件，配置必要信息
+# 主要配置項:
+# - OLLAMA_API_BASE: Ollama 服務地址（默認: http://localhost:11434）
+# - DEFAULT_MODEL_NAME: 使用的模型名稱（例如: gpt-oss:20b）
+# - HOST 和 PORT: API 服務器的主機和端口
+```
+
+### 3. 手動啟動 API 服務
+
+```bash
+# 啟動 API 服務器
+python start_server.py
+
+# 服務啟動後，您可以訪問以下地址:
+# - API 基礎地址: http://localhost:8000/api
+# - Swagger UI 文檔: http://localhost:8000/docs
+# - ReDoc 文檔: http://localhost:8000/redoc
+```
+
+### 4. 執行 Shell 腳本測試
+
+```bash
+# 在新的終端窗口中，確保 API 服務已啟動
+cd /Users/loeb/LAB/agentscope/agentscope-api
+
+# 運行金融分析師辯論 API 測試腳本
+./financial_debate_api.sh
+
+# 或使用測試模式
+./financial_debate_api.sh --test
+```
+
 ## 核心功能
 
 - 創建和管理多種類型的智能體（Agent）
@@ -109,22 +165,15 @@ Client 端通過 HTTP 請求與 API Server 交互，實現完整的辯論流程�
 5. 輪詢辯論狀態
 6. 獲取辯論結果和歷史記錄
 
-## 環境要求
+## 詳細部署指南
 
-- Python 3.10+ 
-- Ollama 服務（用於LLM模型調用）
-- 可選：PostgreSQL 數據庫（默認使用SQLite）
-- Redis（用於緩存和任務隊列，推薦使用）
+除了上述快速部署步驟外，AgentScope API 也提供了 Docker 環境部署方式，適合更複雜的生產環境需求。
 
-## 快速開始
-
-AgentScope API 提供了兩種啟動方式：本地環境和Docker環境。以下是詳細的設置和使用指南。
-
-### 使用Docker環境（推薦）
+### 使用Docker環境（適用生產部署）
 
 使用Docker可以簡化環境配置，自動安裝所有必要的服務（包括Redis、PostgreSQL和Celery）。
 
-1. **準備環境**
+1. **準備Docker環境**
 
 確保您的系統已安裝以下組件：
 - Docker
@@ -143,62 +192,8 @@ AgentScope API 提供了兩種啟動方式：本地環境和Docker環境。以�
 - 構建並啟動所有Docker服務（API服務器、Redis、PostgreSQL、Celery工作器）
 - 顯示服務狀態和測試指令
 
-3. **驗證服務啟動**
+3. **Docker環境常用命令**
 
-服務啟動後，可以通過以下方式驗證：
-- API文檔：http://localhost:8000/docs
-- 健康檢查：http://localhost:8000/api/health
-
-4. **測試API**
-
-等待API服務完全啟動後（約30秒），可以運行：
-
-```bash
-# 運行金融分析師辯論API測試
-./financial_debate_api.sh
-```
-
-### 本地環境設置
-
-如果您希望在本地直接運行服務，而不使用Docker，可以按照以下步驟操作：
-
-1. **安裝依賴**
-
-```bash
-cd /Users/loeb/LAB/agentscope/agentscope-api
-pip install -r requirements.txt
-```
-
-2. **配置環境**
-
-複製並配置環境變量文件：
-
-```bash
-cp .env.example .env
-# 使用您喜歡的編輯器編輯 .env 文件
-```
-
-**關鍵配置項說明**：
-
-- `OLLAMA_API_BASE`: Ollama 服務的地址（默認：`http://localhost:11434`）
-- `DEFAULT_MODEL_NAME`: 默認使用的模型名稱（例如：`gpt-oss:20b`）
-- `DATABASE_URL`: 數據庫連接字符串
-- `HOST` 和 `PORT`: API 服務器的主機和端口
-
-3. **啟動服務器**
-
-```bash
-python start_server.py
-```
-
-服務啟動後，您可以訪問以下地址：
-- API 基礎地址: http://localhost:8000/api
-- Swagger UI 文檔: http://localhost:8000/docs
-- ReDoc 文檔: http://localhost:8000/redoc
-
-### 常用命令
-
-1. **Docker環境命令**
 ```bash
 # 停止所有服務
 docker-compose down
@@ -216,14 +211,12 @@ docker-compose logs -f
 docker-compose exec agentscope-api /bin/bash
 ```
 
-2. **本地環境命令**
-```bash
-# 啟動服務器
-python start_server.py
+## 系統要求
 
-# 測試API
-./financial_debate_api.sh
-```
+- Python 3.10+ 
+- Ollama 服務（用於LLM模型調用）
+- 可選：PostgreSQL 數據庫（默認使用SQLite）
+- Redis（用於緩存和任務隊列，推薦使用）
 
 ## 智能體辯論 API 調用流程詳解
 
