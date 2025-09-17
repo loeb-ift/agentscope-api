@@ -23,6 +23,7 @@ python-jose[cryptography]>=3.3.0
 passlib[bcrypt]>=1.7.4
 shortuuid>=1.0.0
 aiofiles>=23.0.0
+python-dotenv>=1.0.0
 
 # Monitoring and logging
 structlog>=23.0.0
@@ -41,3 +42,4 @@ mypy>=1.0.0
 openai>=1.0.0
 anthropic>=0.3.0
 dashscope>=1.0.0
+ollama>=0.1.7

@@ -47,9 +47,13 @@ class DebateService:
         
         # 3. 为辩论配置每个Agent
         for agent in agents:
+            # 获取辩论请求中的llm_config参数
+            llm_config = request.llm_config if request.llm_config else {}
+            
             self.agent_service.configure_agent_for_debate(
                 agent_id=str(agent.id),
-                topic=request.topic
+                topic=request.topic,
+                llm_config=llm_config
             )
         
         # 4. 使用FastAPI的BackgroundTasks异步启动辩论处理

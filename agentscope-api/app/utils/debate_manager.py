@@ -93,7 +93,7 @@ class DebateManager:
                 content=f"""当前辩论主题：{topic}
 
 请以你当前的角色和立场，对辩论主题发表你的观点和论据。请确保你的发言与当前轮次相关，
-并针对前面的讨论内容（如果有）进行回应。发言要简洁明了，重点突出。""",
+并针对前面的讨论内容（如果有）进行回应。发言要简洁明了，重点突出。所有发言内容必须使用繁體中文。""",
                 timestamp=datetime.now()
             )
             
@@ -162,14 +162,14 @@ class DebateManager:
 {history_summary}
 
 请生成一份结构化的分析报告，包含以下内容：
-1. final_conclusion: 一个综合的最终结论，总结辩论的主要观点和共识
+1. final_conclusion: 一个综合的最终结论，总结辩论的主要观点和共识（请使用繁體中文）
 2. confidence_score: 结论的可信度分数（0.0-1.0）
-3. consensus_points: 各方达成共识的要点列表
-4. divergent_views: 各方存在分歧的观点列表
-5. key_arguments: 按角色分类的关键论点字典
-6. preliminary_insights: 从辩论中获得的初步洞察列表
+3. consensus_points: 各方达成共识的要点列表（请使用繁體中文）
+4. divergent_views: 各方存在分歧的观点列表（请使用繁體中文）
+5. key_arguments: 按角色分类的关键论点字典（请使用繁體中文）
+6. preliminary_insights: 从辩论中获得的初步洞察列表（请使用繁體中文）
 
-请确保你的分析客观、全面，并基于实际辩论内容。"""
+请确保你的分析客观、全面，并基于实际辩论内容，所有文本内容必须使用繁體中文。"""
         
         # 创建结论生成的模型配置，使用settings中的默认模型
         # 注意：禁用流式响应，确保获取完整的JSON响应

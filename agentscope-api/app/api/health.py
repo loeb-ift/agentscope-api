@@ -11,7 +11,7 @@ router = APIRouter()
 @router.get("/health", summary="檢查服務健康狀態")
 def health_check(db: Session = Depends(get_db)):
     """
-    檢查API服務的健康狀態，包括數據庫連接
+    檢查API服務的健康狀態，包括數據庫連接、Redis和LLM服務
     """
     try:
         # 檢查數據庫連接
@@ -31,12 +31,30 @@ def health_check(db: Session = Depends(get_db)):
         redis_status = "unhealthy"
         # 不抛出异常，因为Redis可能不是所有功能的必需组件
     
+    # 解析数据库类型
+    db_type = "unknown"
+    if settings.DATABASE_URL.startswith("sqlite"):
+        db_type = "SQLite"
+    elif settings.DATABASE_URL.startswith("postgresql"):
+        db_type = "PostgreSQL"
+    elif settings.DATABASE_URL.startswith("mysql"):
+        db_type = "MySQL"
+    
+    # 确定运行环境
+    environment = "production" if not settings.DEBUG else "development"
+    
     return {
         "status": "healthy",
         "version": settings.VERSION,
+        "environment": environment,
         "components": {
             "database": db_status,
             "redis": redis_status
+        },
+        "dependencies": {
+            "llm_host": settings.OLLAMA_API_BASE,
+            "database_type": db_type,
+            "redis_url": settings.REDIS_URL.split('?')[0]  # 确保不包含问号及其后面的内容
         },
         "message": "AgentScope API is running"
     }

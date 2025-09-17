@@ -111,7 +111,7 @@ def update_agent(
     - **name**: Agent名称（可选）
     - **role**: Agent角色类型（可选）
     - **system_prompt**: 系统提示词（可选）
-    - **model_config**: 模型配置（可选）
+    - **llm_config**: 模型配置（可选）
     - **personality_traits**: 个性特征列表（可选）
     - **expertise_areas**: 专业领域列表（可选）
     - **is_active**: 是否激活（可选）
@@ -124,7 +124,7 @@ def update_agent(
         name=agent.name,
         role=agent.role,
         system_prompt=agent.system_prompt,
-        model_config=agent.model_config,
+        llm_config=agent.model_config,  # 映射数据库字段到模型字段
         personality_traits=agent.personality_traits,
         expertise_areas=agent.expertise_areas,
         is_active=agent.is_active,
@@ -163,12 +163,14 @@ def configure_agent_for_debate(
     - **agent_id**: Agent的唯一标识
     - **debate_topic**: 辩论主题
     - **additional_instructions**: 额外的指令（可选）
+    - **llm_config**: 模型配置（可选）
     """
     agent_service = AgentService(db)
     agent = agent_service.configure_agent_for_debate(
         agent_id=agent_id,
         topic=request.debate_topic,
-        additional_instructions=request.additional_instructions
+        additional_instructions=request.additional_instructions,
+        llm_config=request.llm_config
     )
     
     return AgentConfigureResponse(

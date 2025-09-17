@@ -6,19 +6,14 @@
 import os
 import sys
 from pathlib import Path
+from dotenv import load_dotenv
 
-# 設置環境變量（不覆蓋已有的OLLAMA和MODEL配置，讓它們優先從.env文件中讀取）
-os.environ.update({
-    "DATABASE_URL": "sqlite:///./agentscope_production.db",
-    "DEBUG": "True",
-    "ENVIRONMENT": "development",
-    "HOST": "127.0.0.1",
-    "PORT": "8000",
-    "REDIS_DATA_DIR": "./redis",
-})
+# [最终修复] 在应用程序启动的最开始，就从 .env 文件加载所有环境变量
+project_root = Path(__file__).parent
+dotenv_path = project_root / '.env'
+load_dotenv(dotenv_path=dotenv_path)
 
 # 添加項目路徑
-project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
 def start_server():
@@ -27,6 +22,11 @@ def start_server():
         import uvicorn
         from app.main import app
         from app.core.database import Base, engine
+        from app.core.config import settings
+
+        # [最终修复] 直接从环境变量读取 HOST 和 PORT，确保一致性
+        HOST = os.environ.get("HOST", "0.0.0.0")
+        PORT = int(os.environ.get("PORT", 8000))
         
         print("🚀 啟動 AgentScope API 服務器")
         print("=" * 50)
@@ -35,15 +35,14 @@ def start_server():
         Base.metadata.create_all(bind=engine)
         print("✅ 數據庫初始化完成")
         
-        # 從配置中獲取Ollama信息
-        from app.core.config import settings
+        # 从配置中獲取Ollama信息
         print(f"🔗 Ollama 服務: {settings.OLLAMA_API_BASE}")
         print(f"🤖 默認模型: {settings.DEFAULT_MODEL_NAME}")
         print()
         print("🌐 服務器地址:")
-        print("  • API: http://127.0.0.1:8000")
-        print("  • 文檔: http://127.0.0.1:8000/docs")
-        print("  • ReDoc: http://127.0.0.1:8000/redoc")
+        print(f"  • API: http://{HOST}:{PORT}")
+        print(f"  • 文檔: http://{HOST}:{PORT}/docs")
+        print(f"  • ReDoc: http://{HOST}:{PORT}/redoc")
         print()
         print("📝 主要端點:")
         print("  • 創建智能體: POST /api/agents/create")
@@ -57,8 +56,8 @@ def start_server():
         # 啟動服務器
         uvicorn.run(
             "app.main:app",
-            host="127.0.0.1",
-            port=8000,
+            host=HOST,
+            port=PORT,
             reload=True,
             log_level="info"
         )
