@@ -45,6 +45,9 @@ python start_server.py
 # - ReDoc 文檔: http://localhost:8000/redoc
 ```
 
+> **重要提示**：如果您打算使用配套的Web界面，**必须先启动API服务，然后再启动Web服务**。
+> Web服务位于 `web/` 目录下，启动方法请参考 `web/README.md`。
+
 ### 4. 執行 Shell 腳本測試
 
 ```bash

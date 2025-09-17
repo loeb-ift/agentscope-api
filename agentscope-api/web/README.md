@@ -4,6 +4,8 @@
 
 ## 🚀 快速开始
 
+> **重要提示**：在启动Web服务前，**必须先启动AgentScope API服务**。
+
 ### 1. 启动Web界面
 
 ```bash
@@ -20,6 +22,13 @@ chmod +x run_web.sh
 ### 2. 手动安装和启动
 
 ```bash
+# 先启动API服务（在agentscope-api目录下）
+cd ../
+python start_server.py
+
+# 然后启动Web服务（在agentscope-api/web目录下）
+cd web
+
 # 安装依赖
 pip install -r requirements.txt
 
@@ -93,14 +102,30 @@ python gradio_debate_app.py
 
 ### 环境变量
 
-在 `.env` 文件中配置：
+使用 `.env.example` 文件作为模板创建 `.env` 文件：
 
 ```bash
-# API配置
-API_BASE_URL=http://10.227.135.97:8000
-OLLAMA_HOST=http://10.227.135.98:11434
-OLLAMA_MODEL=gpt-oss:20b
+# 复制示例环境变量文件
+cp .env.example .env
+
+# 编辑 .env 文件，设置以下环境变量：
+# API_BASE_URL=http://localhost:8000  # AgentScope API 服务地址
+# OLLAMA_HOST=http://localhost:11434  # Ollama 服务地址
+# OLLAMA_MODEL=gpt-oss:20b            # 使用的模型
+# GRADIO_SERVER_NAME=0.0.0.0          # Gradio Web 服务主机
+# GRADIO_SERVER_PORT=7860             # Gradio Web 服务端口
 ```
+
+### 分离部署说明
+
+Web 服务可以独立部署在与 API 服务不同的机器上。只需确保：
+
+1. API 服务配置了可公开访问的地址（在 API 服务的 `.env` 文件中设置 `SERVER_HOST=0.0.0.0`）
+2. Web 服务的 `.env` 文件中 `API_BASE_URL` 设置为正确的 API 服务地址
+   ```
+   API_BASE_URL=http://<API服务器IP>:<API服务端口>
+   ```
+3. 两台机器之间网络连接畅通，防火墙允许相应端口的访问
 
 ### 网络要求
 - 需要访问AgentScope API服务
