@@ -140,9 +140,10 @@ def handle_api_error(response: requests.Response, operation: str) -> str:
     return f"❌ {operation}失败: {error_msg}"
 
 # 配置
-API_BASE_URL = os.getenv("API_BASE_URL", "http://10.227.135.97:8000")
-OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://10.227.135.98:11434")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "gpt-oss:20b")
+# 使用与.env.example一致的默认值，确保开发环境一致性
+API_BASE_URL = os.getenv("API_BASE_URL", "http://127.0.0.1:8000")
+OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://127.0.0.1:11434")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3:8b")
 base_url = f"{API_BASE_URL}/api"
 
 # 默认智能体配置
@@ -434,10 +435,7 @@ class DebateManager:
             logger.error(f"获取辩论结果失败: {e}")
             return None
 
-# API配置
-API_BASE_URL = os.getenv("API_BASE_URL", "http://10.227.135.97:8000")
-OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://10.227.135.98:11434")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "gpt-oss:20b")
+# 复用顶部已定义的API配置
 base_url = f"{API_BASE_URL}/api"
 
 # 全局变量跟踪当前辩论会话
@@ -789,9 +787,10 @@ def get_debate_progress() -> str:
                     progress_info.append("\n💬 最新发言:")
                     for msg in recent_messages:
                         agent_name = msg.get("agent_name", "未知")
+                        agent_id = msg.get("agent_id", "未知")  # 获取Agent ID
                         content = msg.get("content", "")[:100]
                         round_num = msg.get("round", 1)
-                        progress_info.append(f"第{round_num}轮 - {agent_name}: {content}...")
+                        progress_info.append(f"第{round_num}轮 - {agent_name} - ID: {agent_id}: {content}...")
 
         elif current_status == "completed":
             progress_info.append("\n✅ 辩论已完成")
@@ -920,10 +919,12 @@ def format_debate_history(history: List[Dict[str, Any]]) -> str:
         for entry in rounds[round_num]:
             agent_name = entry.get("agent_name", "未知")
             role = entry.get("agent_role", "未知")
+            agent_id = entry.get("agent_id", "未知")  # 获取Agent ID
             content = entry.get("content", "").strip()
 
             if content:  # 只显示有内容的条目
-                results.append(f"👤 {agent_name} ({role}):")
+                # 同时显示Agent名称和ID
+                results.append(f"👤 {agent_name} ({role}) - ID: {agent_id}:")
                 results.append(f"{content}")
                 results.append("")
 
@@ -974,15 +975,17 @@ def monitor_debate_status() -> str:
                     try:
                         latest_entry = max(history, key=lambda x: x.get("timestamp", ""))
                         agent_name = latest_entry.get("agent_name", "未知")
+                        agent_id = latest_entry.get("agent_id", "未知")  # 获取Agent ID
                         content_preview = latest_entry.get("content", "")[:100]
-                        status_info.append(f"最新发言: {agent_name} - {content_preview}...")
+                        status_info.append(f"最新发言: {agent_name} - ID: {agent_id} - {content_preview}...")
                     except (ValueError, TypeError):
                         # 如果没有timestamp字段或其他错误，使用最后一个条目
                         if history:
                             latest_entry = history[-1]
                             agent_name = latest_entry.get("agent_name", "未知")
+                            agent_id = latest_entry.get("agent_id", "未知")  # 获取Agent ID
                             content_preview = latest_entry.get("content", "")[:100]
-                            status_info.append(f"最新发言: {agent_name} - {content_preview}...")
+                            status_info.append(f"最新发言: {agent_name} - ID: {agent_id} - {content_preview}...")
 
         elif current_status == "completed":
             status_info.append("\n✅ 辩论已完成")
@@ -1804,10 +1807,16 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"⚠️ 警告：无法连接到API服务 ({e})，请确保AgentScope API服务已运行")
 
-    # 启动Gradio应用 - 不指定固定端口，让Gradio自动选择可用端口
+    # 从环境变量读取Gradio配置，如果未设置则使用默认值
+    gradio_server_name = os.getenv("GRADIO_SERVER_NAME", "0.0.0.0")
+    gradio_server_port = os.getenv("GRADIO_SERVER_PORT", None)
+    gradio_share = os.getenv("GRADIO_SHARE", "False").lower() == "true"
+    gradio_debug = os.getenv("LOG_LEVEL", "INFO").upper() == "DEBUG"
+
+    # 启动Gradio应用，使用环境变量配置
     demo.launch(
-        server_name="0.0.0.0",
-        # 移除固定端口设置，让Gradio自动选择可用端口
-        share=False,
-        debug=True
+        server_name=gradio_server_name,
+        server_port=int(gradio_server_port) if gradio_server_port else None,
+        share=gradio_share,
+        debug=gradio_debug
     )

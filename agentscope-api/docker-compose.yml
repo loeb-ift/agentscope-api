@@ -1,6 +1,24 @@
-version: '3.8'
-
+# 定义服务
 services:
+  # Web服务容器（Gradio界面）
+  agentscope-web:
+    build: .  # 使用与API服务相同的构建上下文和Dockerfile
+    ports:
+      - "7860:7860"
+    environment:
+      - API_BASE_URL=http://agentscope-api:8000  # API服务地址
+      - OLLAMA_HOST=http://host.docker.internal:11434  # Ollama服务地址（在Docker环境中使用host.docker.internal访问宿主机服务）
+      - DEFAULT_MODEL_NAME=gpt-oss:20b  # 与.env.example保持一致的默认模型
+      - GRADIO_SERVER_NAME=0.0.0.0  # Gradio Web服务主机
+      - GRADIO_SERVER_PORT=7860  # Gradio Web服务端口
+    depends_on:
+      - agentscope-api
+    networks:
+      - agentscope-network
+    volumes:
+      - ./web:/app/web
+    command: ["python", "web/gradio_debate_app.py"]
+  
   # API服务容器
   agentscope-api:
     build: .
@@ -18,7 +36,7 @@ services:
       - API_PREFIX=/api
       - API_URL=http://localhost:8000
       - REDIS_URL=redis://redis:6379/0
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - DATABASE_URL=postgresql://admin:password@postgres:5432/agentscope
       - BACKEND_CORS_ORIGINS=["http://localhost", "http://localhost:8080", "http://localhost:3000"]
       - DEFAULT_DEBATE_ROUNDS=3
       - MAX_DEBATE_ROUNDS=10
@@ -31,6 +49,8 @@ services:
       - CELERY_WORKER_PREFETCH_MULTIPLIER=1
       - DEBATE_EXPIRY_DAYS=30
       - WEBHOOK_TIMEOUT=10
+      - OLLAMA_API_BASE=http://host.docker.internal:11434  # 在Docker环境中使用host.docker.internal访问宿主机上的OLLAMA服务
+      - DEFAULT_MODEL_NAME=gpt-oss:20b  # 与.env.example保持一致的默认模型
     depends_on:
       - redis
       - postgres
@@ -58,9 +78,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_DB=${POSTGRES_DB:-agentscope}
-      - POSTGRES_USER=${POSTGRES_USER:-admin}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
+      - POSTGRES_DB=agentscope
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
@@ -74,12 +94,14 @@ services:
   # Celery工作器容器
   celery-worker:
     build: .
-    command: celery -A app.celery worker --loglevel=info --queue=debate_queue,conclusion_queue,notification_queue
+    command: celery -A app.celery worker --loglevel=info --queues=debate_queue,conclusion_queue,notification_queue
     environment:
       - REDIS_URL=redis://redis:6379/0
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - DATABASE_URL=postgresql://admin:password@postgres:5432/agentscope
       - DEBUG=${DEBUG:-True}
       - TIMEZONE=Asia/Shanghai
+      - OLLAMA_API_BASE=http://host.docker.internal:11434  # 与API服务保持一致的OLLAMA服务配置
+      - DEFAULT_MODEL_NAME=gpt-oss:20b  # 与API服务保持一致的默认模型
     depends_on:
       - redis
       - postgres
@@ -95,9 +117,11 @@ services:
     command: celery -A app.celery beat --loglevel=info
     environment:
       - REDIS_URL=redis://redis:6379/0
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - DATABASE_URL=postgresql://admin:password@postgres:5432/agentscope
       - DEBUG=${DEBUG:-True}
       - TIMEZONE=Asia/Shanghai
+      - OLLAMA_API_BASE=http://host.docker.internal:11434  # 与API服务保持一致的OLLAMA服务配置
+      - DEFAULT_MODEL_NAME=gpt-oss:20b  # 与API服务保持一致的默认模型
     depends_on:
       - redis
       - postgres

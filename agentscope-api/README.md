@@ -6,6 +6,8 @@
 
 以下是快速部署和使用 AgentScope API 服務的步驟指南：
 
+> **注意**: Windows 環境下可能遇到 pydantic 版本兼容性問題，請參見下方的「故障排除」部分。
+
 ### 1. 安裝環境依賴
 
 ```bash
@@ -556,6 +558,25 @@ wait_interval=10   # 輪詢間隔（秒）
 - 確保模型配置正確並且有足夠的生成 token 限制
 - 檢查辯論輪次和最大持續時間設置
 - 查看服務器日誌以獲取詳細錯誤信息
+
+### 3. Windows 環境下的 pydantic 版本兼容性問題
+
+在 Windows 環境中運行時，可能會遇到以下錯誤：
+```
+ModuleNotFoundError: No module named 'pydantic._internal._signature'
+```
+
+這是因為不同操作系統環境中 pydantic 和 pydantic-settings 版本兼容性問題。解決方法：
+
+```bash
+# 運行專門的修復腳本
+python windows_install_fix.py
+
+# 如果腳本不起作用，您可以嘗試手動安裝指定版本
+pip install pydantic==2.11.9 pydantic-settings==2.10.1
+```
+
+這個問題主要出現在 Windows 環境中，macOS 和 Linux 環境通常不受影響。
 
 ## 文檔
 

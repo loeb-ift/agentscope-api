@@ -11,7 +11,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # 配置
-API_BASE_URL = os.getenv("API_BASE_URL", "http://10.227.135.97:8000")
+# 使用与.env.example一致的默认值，确保开发环境一致性
+API_BASE_URL = os.getenv("API_BASE_URL", "http://127.0.0.1:8000")
 base_url = f"{API_BASE_URL}/api"
 
 def test_connection():
@@ -42,7 +43,8 @@ def test_connection():
 
 def test_ollama():
     """测试OLLAMA连接"""
-    OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://10.227.135.98:11434")
+    # 使用与.env.example一致的默认值，确保开发环境一致性
+    OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://127.0.0.1:11434")
     
     try:
         response = requests.get(f"{OLLAMA_HOST}/api/tags", timeout=5)
