@@ -67,6 +67,15 @@ class AgentService:
             Agent.is_active == True
         ).offset(skip).limit(limit).all()
     
+    def get_agents_count(self) -> int:
+        """獲取活躍 Agent 的總數"""
+        return self.db.query(Agent).filter(Agent.is_active == True).count()
+
+    def create_agent_from_dict(self, agent_data: Dict[str, Any]) -> Agent:
+        """從字典建立新的 Agent 實例"""
+        create_request = AgentCreateRequest(**agent_data)
+        return self.create_agent(create_request)
+
     def update_agent(self, agent_id: str, update_data: AgentUpdateRequest) -> Agent:
         """更新Agent信息"""
         db_agent = self.get_agent(agent_id)
@@ -114,9 +123,12 @@ class AgentService:
         if "original_system_prompt" not in db_agent.model_config:
             db_agent.model_config["original_system_prompt"] = db_agent.system_prompt
         
-        # 更新模型配置
+        # 更新模型配置（移除任何外部傳入的 model_name，統一由設定檔控制）
         if llm_config and isinstance(llm_config, dict):
-            db_agent.model_config.update(llm_config)
+            cleaned_llm_config = llm_config.copy()
+            if "model_name" in cleaned_llm_config:
+                del cleaned_llm_config["model_name"]
+            db_agent.model_config.update(cleaned_llm_config)
         
         db_agent.system_prompt = debate_system_prompt
         db_agent.updated_at = datetime.utcnow()
@@ -137,9 +149,9 @@ class AgentService:
 你的角色是：{role} - {role_description}
 
 # 辩论要求
-1. 请基于你的角色立场和专业知识，对辩论主题发表观点
-2. 请提供具体的论据和案例支持你的观点
-3. 请尊重其他参与者的观点，保持专业讨论的态度
+1. 請基於你的角色立場和專業知識，對辯論主題發表觀點
+2. 請提供具體的論據和案例支援你的觀點
+3. 請尊重其他參與者的觀點，保持專業討論的態度
 4. 请确保你的发言简洁明了，重点突出
 5. 请关注辩论的核心问题，避免偏离主题
 6. 所有发言内容必须使用繁體中文
@@ -148,15 +160,15 @@ class AgentService:
         return prompt_template
     
     def create_agentscope_agent(self, db_agent: Agent) -> AgentBase:
-        """基于数据库中的Agent记录创建AgentScope的Agent实例"""
+        """基於資料庫中的Agent記錄建立AgentScope的Agent實例"""
         model_config = db_agent.model_config.copy()
         ollama_api_base = settings.OLLAMA_API_BASE
         default_model_name = settings.DEFAULT_MODEL_NAME
         
-        # [最终修复] 优先从传入的配置中获取模型名称，如果为空或不存在，则强制使用 settings 中定义的默认模型
-        model_name = model_config.get("model_name")
-        if not model_name:
-            model_name = default_model_name
+        # [強制使用設定中的默認模型] 忽略資料庫或外部傳入的 model_name 設置
+        if "model_name" in model_config:
+            del model_config["model_name"]
+        model_name = default_model_name
             
         from agentscope.model import OllamaChatModel, ChatModelBase
         from agentscope.formatter import OllamaMultiAgentFormatter

@@ -1284,7 +1284,6 @@ def create_agent_list_ui():
         agent_count_display = gr.Markdown("目前 Agent 總數：0")
         with gr.Row():
             refresh_agents_btn = gr.Button("🔄 重新整理列表")
-            create_defaults_btn = gr.Button("🚀 一鍵建立預設分析師", variant="secondary")
         agents_checkbox = gr.CheckboxGroup(
             label="選擇參與辯論的Agent",
             choices=[],
@@ -1324,7 +1323,7 @@ def create_agent_list_ui():
         outputs=[agents_checkbox, agent_count_display]
     )
 
-    return agent_list_box, agents_checkbox, delete_agents_btn, edit_agent_btn, selected_agents_display, agent_count_display, create_defaults_btn
+    return agent_list_box, agents_checkbox, delete_agents_btn, edit_agent_btn, selected_agents_display, agent_count_display
 
 # 建立一個全域函式來取得和顯示辯論歷史
 def get_history_display() -> str:
@@ -1435,9 +1434,9 @@ with gr.Blocks(title="AgentScope 金融分析師辯論系統") as demo:
 
                 # 右側：Agent列表
                 with gr.Column(scale=1):
-                    (agent_list_box, agents_checkbox, delete_agents_btn, 
-                     edit_agent_btn, selected_agents_display, 
-                     agent_count_display, create_defaults_btn) = create_agent_list_ui()
+                    (agent_list_box, agents_checkbox, delete_agents_btn,
+                     edit_agent_btn, selected_agents_display,
+                     agent_count_display) = create_agent_list_ui()
 
         # 辯論設定標籤頁
         with gr.TabItem("🎯 辯論設定") as debate_setup_tab:
@@ -1532,11 +1531,6 @@ with gr.Blocks(title="AgentScope 金融分析師辯論系統") as demo:
     # 服務狀態檢查
     service_status_btn.click(fn=check_service, outputs=service_status_text)
 
-    # 一鍵建立預設分析師
-    create_defaults_btn.click(
-        fn=create_default_agents_action,
-        outputs=[create_agent_result, agents_checkbox, agent_count_display]
-    )
 
     # 取消辯論函式定義
     def cancel_debate() -> str:
