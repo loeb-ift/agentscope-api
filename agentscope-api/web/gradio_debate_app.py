@@ -1446,8 +1446,8 @@ with gr.Blocks(title="AgentScope 金融分析師辯論系統") as demo:
 
                     topic_input = gr.Textbox(
                         label="辯論主題",
-                        placeholder="例如：2024年全球經濟展望與投資策略",
-                        value="2024年全球經濟展望與投資策略"
+                        placeholder="2024年全球經濟展望與投資策略",
+                        value=""
                     )
                     rounds_input = gr.Slider(
                             label="辯論輪次",
