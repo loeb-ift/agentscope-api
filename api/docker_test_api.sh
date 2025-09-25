@@ -38,11 +38,7 @@ check_api_health() {
 # 显示Docker服务状态
 display_docker_status() {
     echo -e "\n${BLUE}Docker服务状态:${NC}"
-    if command -v docker-compose &> /dev/null; then
-        docker-compose ps
-    else
-        docker compose ps
-    fi
+    docker compose ps
 }
 
 # 运行金融分析师辩论API测试
@@ -94,11 +90,7 @@ main() {
     fi
     
     echo -e "\n${GREEN}✅ Docker环境API测试完成！${NC}"
-    if command -v docker-compose &> /dev/null; then
-        echo -e "${YELLOW}  提示: 如需停止Docker服务，请运行 'docker-compose down'${NC}"
-    else
-        echo -e "${YELLOW}  提示: 如需停止Docker服务，请运行 'docker compose down'${NC}"
-    fi
+    echo -e "${YELLOW}  提示: 如需停止Docker服务，请运行 'docker compose down'${NC}"
     
     return 0
 }

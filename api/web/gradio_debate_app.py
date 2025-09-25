@@ -21,7 +21,7 @@ project_root = Path(__file__).resolve().parents[1]
 load_dotenv(dotenv_path=project_root / ".env")
 
 # 設定日誌
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 # API 請求設定常數
@@ -67,12 +67,12 @@ def make_api_request(method: str, url: str, **kwargs) -> requests.Response:
             log_message = f"API請求失敗: {method} {url}, 狀態碼: {response.status_code}"
             if payload:
                 try:
-                    # 嘗試格式化JSON payload
                     payload_str = json.dumps(payload, ensure_ascii=False, indent=2)
                     log_message += f"\n--- 請求 Payload ---\n{payload_str}\n--------------------"
                 except TypeError:
-                    # 如果無法序列化，直接轉為字串
                     log_message += f"\n--- 請求 Payload (非序列化) ---\n{payload}\n--------------------"
+            # Always log the full response text for non-200 responses
+            log_message += f"\n--- 原始回應內容 ---\n{response.text}\n--------------------"
             logger.error(log_message)
             
         return response
@@ -85,6 +85,9 @@ def make_api_request(method: str, url: str, **kwargs) -> requests.Response:
                 log_message += f"\n--- 請求 Payload ---\n{payload_str}\n--------------------"
             except TypeError:
                 log_message += f"\n--- 請求 Payload (非序列化) ---\n{payload}\n--------------------"
+        # Always log the full response text for exceptions
+        if hasattr(e, 'response') and e.response is not None:
+            log_message += f"\n--- 原始回應內容 (例外) ---\n{e.response.text}\n--------------------"
         logger.error(log_message)
         raise
 
@@ -108,7 +111,7 @@ def safe_json_parse(response: requests.Response) -> dict:
         logger.error(f"JSON解析失敗: {e}. 原始回應內容: {response.text}")
         raise
     except Exception as e:
-        logger.error(f"解析回應時出錯: {e}")
+        logger.error(f"解析回應時出錯: {e}. 原始回應內容: {response.text}")
         raise
 
 def handle_api_error(response: requests.Response, operation: str) -> str:
@@ -598,15 +601,19 @@ def create_default_agents_action():
     except Exception as e:
         return f"❌ 建立預設 Agent 時發生未知錯誤: {str(e)}", gr.update(), gr.update()
 
-def start_debate_async(topic: str, rounds: int, moderator_agent: str, moderator_prompt: str, debate_team: List[str]) -> str:
+def start_debate_async(topic: str, rounds: int, moderator_agent: str, moderator_prompt: str, debate_team: List[str]) -> tuple:
     """非同步啟動辯論"""
     try:
+        # 清空之前的辯論進度和歷史記錄
+        empty_progress = gr.update(value="")
+        empty_history = gr.update(value="")
+        
         if not topic.strip():
-            return "❌ 辯論主題不能為空，請輸入辯論主題。", gr.update(), gr.update(), gr.update()
+            return "❌ 辯論主題不能為空，請輸入辯論主題。", gr.update(), gr.update(), gr.update(), empty_progress, empty_history
         if not moderator_agent:
-            return "❌ 請選擇一位主席才能啟動辯論。", gr.update(), gr.update(), gr.update()
+            return "❌ 請選擇一位主席才能啟動辯論。", gr.update(), gr.update(), gr.update(), empty_progress, empty_history
         if not debate_team or len(debate_team) < 2:
-            return "❌ 請至少選擇兩位辯論團隊成員才能啟動辯論。", gr.update(), gr.update(), gr.update()
+            return "❌ 請至少選擇兩位辯論團隊成員才能啟動辯論。", gr.update(), gr.update(), gr.update(), empty_progress, empty_history
 
         # 解析ID
         moderator_id = str(moderator_agent).split(" - ID: ")[-1]
@@ -635,7 +642,8 @@ def start_debate_async(topic: str, rounds: int, moderator_agent: str, moderator_
                 headers={"Content-Type": "application/json"}
             )
             if config_response.status_code != 200:
-                return f"❌ 設定Agent {agent_id} 失敗: HTTP {config_response.status_code}", gr.update(), gr.update(), gr.update()
+                error_msg = handle_api_error(config_response, f"設定Agent {agent_id}")
+                return f"❌ 設定Agent {agent_id} 失敗: {error_msg}", gr.update(), gr.update(), gr.update(), empty_progress, empty_history
 
         # 啟動辯論 - 直接API呼叫
         logger.info(f"--- 開始操作：啟動辯論 ---")
@@ -668,14 +676,15 @@ def start_debate_async(topic: str, rounds: int, moderator_agent: str, moderator_
                 # 更新全域session_id用於後續操作
                 global current_session_id
                 current_session_id = session_id
-                return f"✅ 辯論啟動成功！會話ID: {session_id}", gr.update(interactive=False), gr.update(visible=True), gr.update(selected="📊 辯論進度")
+                return f"✅ 辯論啟動成功！會話ID: {session_id}", gr.update(interactive=False), gr.update(visible=True), gr.update(selected="📊 辯論進度"), empty_progress, empty_history
             else:
-                return "❌ 辯論啟動失敗: API未返回session_id", gr.update(), gr.update(), gr.update()
+                return "❌ 辯論啟動失敗: API未返回session_id", gr.update(), gr.update(), gr.update(), empty_progress, empty_history
         else:
             error_msg = handle_api_error(debate_response, "辯論啟動")
-            return f"❌ 辯論啟動失敗: {error_msg}", gr.update(), gr.update(), gr.update()
+            return f"❌ 辯論啟動失敗: {error_msg}", gr.update(), gr.update(), gr.update(), empty_progress, empty_history
     except Exception as e:
-        return f"❌ 啟動辯論時出錯: {str(e)}", gr.update(), gr.update(), gr.update()
+        logger.error(f"啟動辯論時出錯: {e}", exc_info=True)
+        return f"❌ 啟動辯論時出錯: {str(e)}", gr.update(), gr.update(), gr.update(), empty_progress, empty_history
 
 def get_debate_progress(history_state: list) -> tuple:
     """取得辯論進度 - 直接API呼叫"""
@@ -874,26 +883,37 @@ def format_debate_history(history: List[Dict[str, Any]]) -> str:
         results.append("-" * 30)
 
         for entry in rounds[round_num]:
-            agent_id = entry.get("agent_id", "未知")
-            agent_name = entry.get("agent_name", "")
+            # 從歷史記錄條目中獲取 agent_id 和 agent_name
+            # 根據日誌，agent_name 字段實際上包含了 agent_id
+            # 而 agent_id 字段可能是 "未知"
+            raw_agent_id_from_entry = entry.get("agent_id", "未知")
+            raw_agent_name_from_entry = entry.get("agent_name", "")
             role = entry.get("agent_role", "未知")
             content = entry.get("content", "").strip()
 
-            # 如果 agent_name 為空，嘗試從後端獲取 Agent 詳細資訊
-            if not agent_name and agent_id != "未知":
-                agent_details = debate_manager.get_agent_details(agent_id)
+            # 判斷哪個字段包含實際的 Agent ID
+            # 優先使用 raw_agent_name_from_entry，因為日誌顯示它包含了 ID
+            actual_agent_id_to_query = ""
+            if raw_agent_name_from_entry and "-" in raw_agent_name_from_entry: # 簡單判斷是否為 UUID 格式
+                actual_agent_id_to_query = raw_agent_name_from_entry
+            elif raw_agent_id_from_entry != "未知":
+                actual_agent_id_to_query = raw_agent_id_from_entry
+
+            display_agent_name = "未知名稱" # 預設顯示名稱
+
+            if actual_agent_id_to_query:
+                agent_details = debate_manager.get_agent_details(actual_agent_id_to_query)
                 if agent_details and agent_details.get("name"):
-                    agent_name = agent_details.get("name")
+                    display_agent_name = agent_details.get("name")
                 else:
-                    # 如果還是找不到名稱，則回退到顯示 ID
-                    agent_name = agent_id
-            elif not agent_name:
-                # 如果 agent_id 也是未知，則直接顯示未知
-                agent_name = "未知"
+                    # 如果無法獲取詳細名稱，則回退到顯示 ID
+                    display_agent_name = actual_agent_id_to_query
+            elif raw_agent_name_from_entry:
+                # 如果 raw_agent_name_from_entry 不是 ID 格式，但有值，則直接使用
+                display_agent_name = raw_agent_name_from_entry
 
             if content:  # 只顯示有內容的條目
-                # 同時顯示Agent名稱和ID
-                results.append(f"👤 {agent_name} ({role}):")
+                results.append(f"👤 {display_agent_name} ({role}):")
                 results.append(f"{content}")
                 results.append("")
 
@@ -1633,7 +1653,7 @@ with gr.Blocks(title="AgentScope 金融分析師辯論系統") as demo:
     start_debate_btn.click(
         fn=start_debate_async,
         inputs=[topic_input, rounds_input, moderator_selector, moderator_prompt_input, debate_team_selector],
-        outputs=[debate_status_text, start_debate_btn, cancel_debate_btn, tabs]
+        outputs=[debate_status_text, start_debate_btn, cancel_debate_btn, tabs, debate_progress_display, full_history_display]
     )
 
     demo.load(

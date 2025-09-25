@@ -31,7 +31,7 @@ check_docker() {
         return 1
     fi
     
-    # 检查Docker Compose是否安装（同时支持 docker compose 与 docker-compose）
+    # 检查Docker Compose是否安装
     if command -v docker-compose &> /dev/null; then
         DOCKER_COMPOSE_CMD="docker-compose"
     elif docker compose version &> /dev/null; then
