@@ -86,7 +86,7 @@ services:
     build:
       context: ..
       dockerfile: api/Dockerfile
-    command: celery -A app.celery worker --loglevel=info --queues=debate_queue,conclusion_queue,notification_queue
+    command: ["celery", "-A", "app.celery", "worker", "--loglevel=info", "-Q", "debate_queue,conclusion_queue,notification_queue"]
     env_file:
       - ./.env
     environment:
@@ -111,7 +111,7 @@ services:
     build:
       context: ..
       dockerfile: api/Dockerfile
-    command: celery -A app.celery beat --loglevel=info
+    command: ["celery", "-A", "app.celery", "beat", "--loglevel=info"]
     env_file:
       - ./.env
     environment:
